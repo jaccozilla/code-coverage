@@ -1,0 +1,9 @@
+Racket Extended Code Coverage
+
+This tool adds another button to DrRacket labeled "Load Code Coverage." Clicking this button will bring up a dialog that displays all files executed by running the program that is currently in focus. Files that contain uncovered lines appear at the top of this list. Selecting one of the files and pressing "Open" will either switch to a tab containing that file, or open a new tab with that file. Additionally, all open tabs that contain files covered by the original program will have code coverage highlighting applied to them.
+
+TODO:
+-have "Open" actually open the file
+-Display covered/uncovered/modified files in the dialog box in distinct ways.
+-Keep track of which files have been modified since their coverage was collected-Save coverage information
+-Run some real tests
