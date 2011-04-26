@@ -15,7 +15,9 @@
          compiler/cm)
 (provide tool@)
 
-
+(define coverage-suffix ".rktcov")
+(define coverage-label "Code Coverage")
+(define button-label "Load Code Coverage")
 
 (define tool@
   (unit
@@ -44,38 +46,35 @@
           (let* ([current-tab (get-current-tab)]
                  [current-frame (send current-tab get-frame)]
                  [interactions-text (get-interactions-text)]
-                 [test-coverage-info-ht (send interactions-text get-test-coverage-info)])
+                 [test-coverage-info-ht (send interactions-text get-test-coverage-info)]
+                 [source-file (send (send current-tab get-defs) get-filename)]
+                 [coverage-file (get-temp-coverage-file source-file)])
+            ;(fprintf (current-error-port) "coverage file: ~a\n" coverage-file)
             (if test-coverage-info-ht
                 (let* ([coverage-report-list (make-coverage-report test-coverage-info-ht)]
                        [choice-index-list (get-choices-from-user
-                                           "Code Coverage"
+                                           coverage-label
                                            "Covered Files:"
                                            (map (λ (item) (format "~a" (first item))) coverage-report-list))])
                   (when choice-index-list
                     (map (λ (choice-index) 
                            (let* ([coverage-report-item (list-ref coverage-report-list choice-index)])
                              (send current-frame open-in-new-tab (first coverage-report-item))
-                             (define dialog (instantiate frame% ("Code Coverage")))
-                             (new message% [parent dialog]
-                                  [label (format "Uncoverd Lines: ~a" (rest coverage-report-item))]	 
-                                  [min-width 200]	 
-                                  [min-height 40])
-                             (new button% [parent dialog] [label "Close"]
-                                  [callback (λ (b e) (send dialog show #f))])
-                             (send dialog show #t)
-                             ;(message-box "Code Coverage" (format "Uncoverd Lines: ~a" (rest coverage-report-item)))
+                             (uncoverd-lines-dialog (rest coverage-report-item))
                              )) 
                          choice-index-list))
+                  ;(map (λ (t) (send t show-test-coverage-annotations test-coverage-info-ht #f #f #f)) (get-tabs))
+                  (save-test-coverage-info test-coverage-info-ht coverage-file)
                   (map (λ (t) (send t show-test-coverage-annotations test-coverage-info-ht #f #f #f)) (get-tabs))
                   
                   )
-                (message-box "Code Coverage" "Run the program before attempting to load Code Coverage Information"))
+                (message-box coverage-label "Run the program before attempting to load Code Coverage Information"))
             )
           )
         
         ;Create the load coverage button and add it to the menu bar in DrRacket
         (define load-button (new switchable-button%
-                                 (label "Load Code Coverage")
+                                 (label button-label)
                                  (callback (λ (button)
                                              (load-coverage)))
                                  (parent (get-button-panel))
@@ -90,22 +89,48 @@
 
 
     ;Get the name and location of a code coverage file based on the name of a source file.
+    ;Also creates the code coverage dir if it does not exisit
     ;path? -> path?
     (define (get-temp-coverage-file source-file)
       (begin
         (define-values (file-base file-name must-be-dir) (split-path source-file))
-        (define temp-coverage-file-name (string-append (path->string file-name) ".txt"))
-        (define temp-coverage-file (build-path (find-system-path 'temp-dir) "drracket" temp-coverage-file-name))
-        temp-coverage-file))
+        (define temp-coverage-file-name (path-replace-suffix file-name coverage-suffix))
+        (define temp-coverage-dir (build-path file-base "compiled"))
+        (define temp-coverage-file (build-path temp-coverage-dir temp-coverage-file-name))
+        (when (not (directory-exists? temp-coverage-dir))
+          (make-directory temp-coverage-dir))
+        temp-coverage-file
+        ))
+    
+    ;writes the test-coiverage-info hash table to the given file so that "load-test-coverage-info"
+    ;can reconstruct the hash table
+    ;hasheq path -> void
+    (define (save-test-coverage-info test-coverage-info coverage-file)
+      (with-output-to-file coverage-file
+        (lambda () (begin 
+                     (write (hash-map test-coverage-info 
+                                      (λ (key value)
+                                        (cons (list (serialize (syntax-source key)) 
+                                                    (syntax-position key) 
+                                                    (syntax-span key)
+                                                    (syntax-line key)) 
+                                              value))
+                                      
+                                      ))))
+          #:mode 'text
+          #:exists 'replace
+        ))
     
     ;Convert the coverage file to a test-coverage-info hash table
     ;path -> hasheq
-    (define (test-coverage-info-file->test-covearge-info coverage-file)
+    (define (load-test-coverage-info coverage-file)
       (make-hasheq (map (lambda (element)
                           (let* ([key (car element)]
                                  [value (cdr element)])
                             (cons (datum->syntax #f (void) (list (deserialize (car key)) (cadddr key) 1 (cadr key) (caddr key))) (mcons (car value) (cdr value)))))
                         (read (open-input-file coverage-file)))))
+    
+    
     
     
     ;Takes a test-coverage-info-ht and returns a sorted (alphibetical, but with uncovered
@@ -130,6 +155,18 @@
                                                 (λ (a b) (eq? 0 (length (rest b)))))]                                         
                  )
             test-coverage-info-list))))
+    
+    ; the dialog that displays the uncovered lines. Not a message box so the user can interact
+    ; with DrRacket without having to close the dialog.
+    (define (uncoverd-lines-dialog lines)
+      (let* ([dialog (instantiate frame% (coverage-label))])
+        (new message% [parent dialog]
+             [label (format "Uncoverd Lines: ~a" lines)]	 
+             [min-width 200]	 
+             [min-height 40])
+        (new button% [parent dialog] [label "Close"]
+             [callback (λ (b e) (send dialog show #f))])
+        (send dialog show #t)))
     
     ; Graphic for the code coverage button
     (define code-coverage-bitmap 
