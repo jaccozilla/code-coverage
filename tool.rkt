@@ -42,16 +42,32 @@
         ; and display that.
         (define (load-coverage)
           (let* ([current-tab (get-current-tab)]
+                 [current-frame (send current-tab get-frame)]
                  [interactions-text (get-interactions-text)]
                  [test-coverage-info-ht (send interactions-text get-test-coverage-info)])
             (if test-coverage-info-ht
-                (begin
+                (let* ([coverage-report-list (make-coverage-report test-coverage-info-ht)]
+                       [choice-index-list (get-choices-from-user
+                                           "Code Coverage"
+                                           "Covered Files:"
+                                           (map (λ (item) (format "~a" (first item))) coverage-report-list))])
+                  (when choice-index-list
+                    (map (λ (choice-index) 
+                           (let* ([coverage-report-item (list-ref coverage-report-list choice-index)])
+                             (send current-frame open-in-new-tab (first coverage-report-item))
+                             (define dialog (instantiate frame% ("Code Coverage")))
+                             (new message% [parent dialog]
+                                  [label (format "Uncoverd Lines: ~a" (rest coverage-report-item))]	 
+                                  [min-width 200]	 
+                                  [min-height 40])
+                             (new button% [parent dialog] [label "Close"]
+                                  [callback (λ (b e) (send dialog show #f))])
+                             (send dialog show #t)
+                             ;(message-box "Code Coverage" (format "Uncoverd Lines: ~a" (rest coverage-report-item)))
+                             )) 
+                         choice-index-list))
                   (map (λ (t) (send t show-test-coverage-annotations test-coverage-info-ht #f #f #f)) (get-tabs))
-                  (get-choices-from-user
-                   "Code Coverage"
-                   "Covered Files:"
-                   (map (λ (item) (format "~a: ~a" (first item) (rest item))) (make-coverage-report test-coverage-info-ht))
-                   )
+                  
                   )
                 (message-box "Code Coverage" "Run the program before attempting to load Code Coverage Information"))
             )
