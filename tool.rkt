@@ -45,11 +45,9 @@
         (define (load-coverage)
           (let* ([current-tab (get-current-tab)]
                  [current-frame (send current-tab get-frame)]
-                 [interactions-text (get-interactions-text)]
-                 [test-coverage-info-ht (send interactions-text get-test-coverage-info)]
                  [source-file (send (send current-tab get-defs) get-filename)]
-                 [coverage-file (get-temp-coverage-file source-file)])
-            ;(fprintf (current-error-port) "coverage file: ~a\n" coverage-file)
+                 [coverage-file (get-temp-coverage-file source-file)]
+                 [test-coverage-info-ht (get-test-coverage-info-ht current-tab coverage-file)])
             (if test-coverage-info-ht
                 (let* ([coverage-report-list (make-coverage-report test-coverage-info-ht)]
                        [choice-index-list (get-choices-from-user
@@ -57,20 +55,40 @@
                                            "Covered Files:"
                                            (map (λ (item) (format "~a" (first item))) coverage-report-list))])
                   (when choice-index-list
-                    (map (λ (choice-index) 
-                           (let* ([coverage-report-item (list-ref coverage-report-list choice-index)])
-                             (send current-frame open-in-new-tab (first coverage-report-item))
-                             (uncoverd-lines-dialog (rest coverage-report-item))
-                             )) 
+                    (map (λ (choice-index)
+                           (let* ([coverage-report-item (list-ref coverage-report-list choice-index)]
+                                  [coverage-report-file (first coverage-report-item)]
+                                  [coverage-report-lines (rest coverage-report-item)])
+                             (send current-frame open-in-new-tab coverage-report-file)
+                             (when (> (length coverage-report-lines) 0)
+                               (send (uncovered-lines-dialog coverage-report-lines) show #t))
+                             ))
                          choice-index-list))
-                  ;(map (λ (t) (send t show-test-coverage-annotations test-coverage-info-ht #f #f #f)) (get-tabs))
                   (save-test-coverage-info test-coverage-info-ht coverage-file)
-                  (map (λ (t) (send t show-test-coverage-annotations test-coverage-info-ht #f #f #f)) (get-tabs))
                   
+                  ;send the coverage information to open tabs
+                  (map (λ (t) 
+                         (send t show-test-coverage-annotations test-coverage-info-ht #f #f #f)) 
+                       (filter (λ (t) ; filter out tabs that do not have coverage info from this test-coverage-info
+                                 (if (member 
+                                      (path->string (send (send t get-defs) get-filename)) 
+                                      (map (λ (item) (first item)) coverage-report-list))
+                                     #t
+                                     #f))
+                               (get-tabs)))
                   )
-                (message-box coverage-label "Run the program before attempting to load Code Coverage Information"))
+                (message-box coverage-label "Run the program before attempting to load code coverage information"))
             )
           )
+        
+        (define (get-test-coverage-info-ht current-tab coverage-file)
+          (let* ([interactions-text (get-interactions-text)]
+                 [test-coverage-info-drracket (send interactions-text get-test-coverage-info)])
+            (if test-coverage-info-drracket
+                test-coverage-info-drracket
+                (if (file-exists? coverage-file)
+                    (load-test-coverage-info coverage-file)
+                    #f))))
         
         ;Create the load coverage button and add it to the menu bar in DrRacket
         (define load-button (new switchable-button%
@@ -87,7 +105,8 @@
                 (cons load-button (remq load-button l))))     
         ))
 
-
+    
+    
     ;Get the name and location of a code coverage file based on the name of a source file.
     ;Also creates the code coverage dir if it does not exisit
     ;path? -> path?
@@ -134,7 +153,7 @@
     
     
     ;Takes a test-coverage-info-ht and returns a sorted (alphibetical, but with uncovered
-    ;files first) list of file name - uncoverd lines pairs.
+    ;files first) list of file name - uncovered lines pairs.
     ;hasheq -> (list (pair string? (list integer?)))
     (define (make-coverage-report test-coverage-info-ht)
       (let* ([file->lines-ht (make-hash)])
@@ -158,15 +177,15 @@
     
     ; the dialog that displays the uncovered lines. Not a message box so the user can interact
     ; with DrRacket without having to close the dialog.
-    (define (uncoverd-lines-dialog lines)
+    (define (uncovered-lines-dialog lines)
       (let* ([dialog (instantiate frame% (coverage-label))])
         (new message% [parent dialog]
-             [label (format "Uncoverd Lines: ~a" lines)]	 
+             [label (format "Uncovered Lines: ~a" lines)]	 
              [min-width 200]	 
              [min-height 40])
         (new button% [parent dialog] [label "Close"]
              [callback (λ (b e) (send dialog show #f))])
-        (send dialog show #t)))
+        dialog))
     
     ; Graphic for the code coverage button
     (define code-coverage-bitmap 
