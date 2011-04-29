@@ -12,7 +12,8 @@
          racket/list
          mrlib/switchable-button
          errortrace/errortrace-lib
-         compiler/cm)
+         compiler/cm
+         framework)
 (provide tool@)
 
 (define coverage-suffix ".rktcov")
@@ -44,43 +45,52 @@
         ; and display that.
         (define (load-coverage)
           (let* ([current-tab (get-current-tab)]
-                 [current-frame (send current-tab get-frame)]
                  [source-file (send (send current-tab get-defs) get-filename)]
                  [coverage-file (get-temp-coverage-file source-file)]
                  [test-coverage-info-ht (get-test-coverage-info-ht current-tab coverage-file)])
             (if test-coverage-info-ht
                 (let* ([coverage-report-list (make-coverage-report test-coverage-info-ht)]
+                       [frame-group (group:get-the-frame-group)]
                        [choice-index-list (get-choices-from-user
                                            coverage-label
                                            "Covered Files:"
                                            (map (λ (item) (format "~a" (first item))) coverage-report-list))])
+                  ;switch to or open a new frame with the selected file and display the uncoverd lines in a new dialog
                   (when choice-index-list
                     (map (λ (choice-index)
                            (let* ([coverage-report-item (list-ref coverage-report-list choice-index)]
-                                  [coverage-report-file (first coverage-report-item)]
+                                  [coverage-report-file (string->path (first coverage-report-item))]
                                   [coverage-report-lines (rest coverage-report-item)])
-                             (send current-frame open-in-new-tab coverage-report-file)
+                             (handler:edit-file coverage-report-file)
                              (when (> (length coverage-report-lines) 0)
-                               (send (uncovered-lines-dialog coverage-report-lines) show #t))
+                               (send (uncovered-lines-dialog coverage-report-file coverage-report-lines) show #t))
                              ))
                          choice-index-list))
+                  
+                  ;send the coverage info to all files found in the coverage-report
+                  (map (λ (report-item)
+                         (let* ([coverage-report-file (string->path (first report-item))]
+                                [located-file-frame (send frame-group locate-file coverage-report-file)]
+                                [located-file-tab (if located-file-frame
+                                                      (findf (λ (t)
+                                                               (equal? 
+                                                                (send (send t get-defs) get-filename)
+                                                                coverage-report-file))
+                                                             (send located-file-frame get-tabs))
+                                                      #f)])
+                           (when located-file-tab
+                             (send located-file-tab show-test-coverage-annotations test-coverage-info-ht #f #f #f))
+                             ))
+                       coverage-report-list)
                   (save-test-coverage-info test-coverage-info-ht coverage-file)
                   
-                  ;send the coverage information to open tabs
-                  (map (λ (t) 
-                         (send t show-test-coverage-annotations test-coverage-info-ht #f #f #f)) 
-                       (filter (λ (t) ; filter out tabs that do not have coverage info from this test-coverage-info
-                                 (if (member 
-                                      (path->string (send (send t get-defs) get-filename)) 
-                                      (map (λ (item) (first item)) coverage-report-list))
-                                     #t
-                                     #f))
-                               (get-tabs)))
                   )
                 (message-box coverage-label "Run the program before attempting to load code coverage information"))
             )
           )
         
+        ;find the current tab's coverage info either from the current test-coverage-info (if it has been run) or from
+        ; a saved one
         (define (get-test-coverage-info-ht current-tab coverage-file)
           (let* ([interactions-text (get-interactions-text)]
                  [test-coverage-info-drracket (send interactions-text get-test-coverage-info)])
@@ -90,7 +100,7 @@
                     (load-test-coverage-info coverage-file)
                     #f))))
         
-        ;Create the load coverage button and add it to the menu bar in DrRacket
+        ;Creates the load coverage button and add it to the menu bar in DrRacket
         (define load-button (new switchable-button%
                                  (label button-label)
                                  (callback (λ (button)
@@ -177,13 +187,26 @@
     
     ; the dialog that displays the uncovered lines. Not a message box so the user can interact
     ; with DrRacket without having to close the dialog.
-    (define (uncovered-lines-dialog lines)
+    (define (uncovered-lines-dialog file lines)
       (let* ([dialog (instantiate frame% (coverage-label))])
         (new message% [parent dialog]
-             [label (format "Uncovered Lines: ~a" lines)]	 
-             [min-width 200]	 
-             [min-height 40])
-        (new button% [parent dialog] [label "Close"]
+             [label (format "~a:" file)]	 
+             )
+        ;(new message% [parent dialog]
+        ;     [label (format "~a" lines)]	 
+        ;     )
+        (new list-box%
+             [label ""]	 
+             [choices (map (λ (l) (format "~a" l)) lines)]	 
+             [parent dialog]
+             ;[min-height 150]
+             ;[vert-margin 0]
+             )
+        (define panel (new horizontal-panel% [parent dialog]
+                     [alignment '(center center)]))
+        (new button% [parent panel] [label "Go To Line"]
+             [callback (λ (b e) (send dialog show #f))])
+        (new button% [parent panel] [label "Close"]
              [callback (λ (b e) (send dialog show #f))])
         dialog))
     
