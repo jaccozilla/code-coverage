@@ -50,7 +50,7 @@
                  [source-file (send (send current-tab get-defs) get-filename)]
                  [coverage-file (get-temp-coverage-file source-file)]
                  [test-coverage-info-ht (get-test-coverage-info-ht current-tab coverage-file)])
-            (if test-coverage-info-ht
+            (when test-coverage-info-ht
                 (let* ([coverage-report-list (make-coverage-report test-coverage-info-ht)]
                        [frame-group (group:get-the-frame-group)]
                        [choice-index-list (get-choices-from-user
@@ -84,27 +84,41 @@
                              (send located-file-tab show-test-coverage-annotations test-coverage-info-ht #f #f #f))
                            ))
                        coverage-report-list)
-                  (save-test-coverage-info test-coverage-info-ht coverage-file)
+                  
                   
                   )
-                (message-box coverage-label 
-                             "No Code Coverage Information found. Make Syntactic Test Suite Coverage is enabled in Language->Chosse Language...->Dynamic Properties and the program has been run." 
-                             #f 
-                             (list 'ok 'stop)))
+                )
             )
-          
           )
         
         ;find the current tab's coverage info either from the current test-coverage-info (if it has been run) or from
-        ; a saved one
+        ; a saved one. If the test coverage does not need to be loaded (the program has recently been run) save it to 
+        ; coverage-file If the test coverage needs to be loaded from the saved one then check if the current tab has 
+        ; been modified since the coverage was saved and display a warning if it has. If no coverage information can 
+        ; be found display a warning with suggestions to fix it.
         (define (get-test-coverage-info-ht current-tab coverage-file)
-          (let* ([interactions-text (get-interactions-text)]
+          (let* ([source-file (send (send current-tab get-defs) get-filename)]
+                 [interactions-text (get-interactions-text)]
                  [test-coverage-info-drracket (send interactions-text get-test-coverage-info)])
             (if test-coverage-info-drracket
-                test-coverage-info-drracket
+                (begin
+                  (save-test-coverage-info test-coverage-info-drracket coverage-file)
+                  test-coverage-info-drracket)
                 (if (file-exists? coverage-file)
-                    (load-test-coverage-info coverage-file)
-                    #f))))
+                    (if (and (< (file-or-directory-modify-seconds coverage-file) (file-or-directory-modify-seconds source-file))
+                        (equal? (message-box coverage-label 
+                                     "The Coverage information is out of date. Run the program to update it. Selected \"ok\" to use the out of date coverage information." 
+                                     #f 
+                                     (list 'ok-cancel 'caution))
+                                'cancel))
+                        #f
+                        (load-test-coverage-info coverage-file))
+                    (begin 
+                      (message-box coverage-label 
+                             "No Code Coverage Information found. Make Syntactic Test Suite Coverage is enabled in Language->Chosse Language...->Dynamic Properties and the program has been run." 
+                             #f 
+                             (list 'ok 'stop))
+                      #f)))))
         
         ;Creates the load coverage button and add it to the menu bar in DrRacket
         (define load-button (new switchable-button%
