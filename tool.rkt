@@ -51,18 +51,18 @@
                  [coverage-file (get-temp-coverage-file source-file)]
                  [test-coverage-info-ht (get-test-coverage-info-ht current-tab coverage-file)])
             (when test-coverage-info-ht
-                (let* ([coverage-report-list (make-coverage-report test-coverage-info-ht)]
+                (let* ([coverage-report-list (make-coverage-report test-coverage-info-ht coverage-file)]
                        [frame-group (group:get-the-frame-group)]
                        [choice-index-list (get-choices-from-user
                                            coverage-label
-                                           "Covered Files:"
-                                           (map (λ (item) (format "~a" (first item))) coverage-report-list))])
+                                           (format "Files covered by ~a" source-file)
+                                           (map (λ (item) (format "~a~a" (first item) (if (car (rest item)) "" "*"))) coverage-report-list))])
                   ;switch to or open a new frame with the selected file and display the uncoverd lines in a new dialog
                   (when choice-index-list
                     (map (λ (choice-index)
                            (let* ([coverage-report-item (list-ref coverage-report-list choice-index)]
                                   [coverage-report-file (string->path (first coverage-report-item))]
-                                  [coverage-report-lines (rest coverage-report-item)])
+                                  [coverage-report-lines (cdr (rest coverage-report-item))])
                              (handler:edit-file coverage-report-file)
                              (when (> (length coverage-report-lines) 0)
                                (send (uncovered-lines-dialog coverage-report-file coverage-report-lines) show #t))
@@ -103,11 +103,13 @@
             (if test-coverage-info-drracket
                 (begin
                   (save-test-coverage-info test-coverage-info-drracket coverage-file)
+                  (send interactions-text set-test-coverage-info #f) ;clear out drrackets test-coverage-info-ht so we can use our 
+                                                                     ;coverage file modified time as a reference of when coverage
+                                                                     ;was last run
                   test-coverage-info-drracket)
                 (if (file-exists? coverage-file)
                     (if (and 
-                         (or (< (file-or-directory-modify-seconds coverage-file) (file-or-directory-modify-seconds source-file))
-                             (not (send (send current-tab get-frame) still-untouched?)))
+                         (not (is-file-still-valid? source-file coverage-file))
                          (equal? (message-box coverage-label 
                                               "The Coverage information may be out of date. Run the program to update it." 
                                               #f 
@@ -121,6 +123,8 @@
                              #f 
                              (list 'ok 'stop))
                       #f)))))
+        
+       
         
         ;Creates the load coverage button and add it to the menu bar in DrRacket
         (define load-button (new switchable-button%
@@ -136,8 +140,44 @@
               (λ (l)
                 (cons load-button (remq load-button l))))     
         ))
-
     
+    ;Takes a test-coverage-info-ht and returns a sorted (alphibetical, but with uncovered
+    ;files first) list of file-name coverage-is-valid? uncovered-lines.
+    ;hasheq -> (list string? (pair boolean? (list integer?))))
+    (define (make-coverage-report test-coverage-info-ht coverage-file)
+      (let* ([file->lines-ht (make-hash)])
+        (begin
+          (hash-for-each test-coverage-info-ht 
+                         (λ (key value)
+                           (let* ([line (syntax-line key)]
+                                  [source (format "~a" (syntax-source key))]
+                                  [covered? (mcar value)]
+                                  [file->lines-value (hash-ref file->lines-ht source (cons (is-file-still-valid? (string->path source) coverage-file) (list)))])
+                             (hash-set! file->lines-ht source 
+                                        (if (or covered? (member line (cdr file->lines-value)))
+                                            file->lines-value
+                                            (cons (car file->lines-value) (sort (append (cdr file->lines-value) (list line)) <))
+                                            )))
+                           ))
+          (let* ([test-coverage-info-list (sort (sort (hash->list file->lines-ht) 
+                                                      (λ (a b) (string<? (first a) (first b))))
+                                                (λ (a b) (eq? 0 (length (cdr (rest b))))))]                                         
+                 )
+            test-coverage-info-list))))
+    
+    ;Compare file vs coverage-file to see if file has been modified since the coverage-file was saved, if it
+    ;has this indicates that the coverage info may no longer be valid for file
+    (define (is-file-still-valid? file coverage-file)
+      (let* ([file-modify-valid? (> (file-or-directory-modify-seconds coverage-file) (file-or-directory-modify-seconds file))]
+             [located-file-frame (send (group:get-the-frame-group) locate-file file)]
+             [file-untouched-valid? (if located-file-frame
+                                        #t ;(send located-file-frame still-untouched?) ;this seems to always return #f?
+                                        #t)])
+        ;(fprintf (current-error-port) "~a: ~a,~a\n" file file-modify-valid? file-untouched-valid?)
+        (and file-modify-valid? file-untouched-valid?)
+        ))
+
+   
     
     ;Get the name and location of a code coverage file based on the name of a source file.
     ;Also creates the code coverage dir if it does not exisit
@@ -184,28 +224,7 @@
     
     
     
-    ;Takes a test-coverage-info-ht and returns a sorted (alphibetical, but with uncovered
-    ;files first) list of file name - uncovered lines pairs.
-    ;hasheq -> (list (pair string? (list integer?)))
-    (define (make-coverage-report test-coverage-info-ht)
-      (let* ([file->lines-ht (make-hash)])
-        (begin
-          (hash-for-each test-coverage-info-ht 
-                         (λ (key value)
-                           (let* ([line (syntax-line key)]
-                                  [source (format "~a" (syntax-source key))]
-                                  [covered? (mcar value)]
-                                  [file->lines-value (hash-ref file->lines-ht source (list))])
-                             (hash-set! file->lines-ht source 
-                                        (if (or covered? (member line file->lines-value))
-                                            file->lines-value
-                                            (sort (append file->lines-value (list line)) <))))
-                           ))
-          (let* ([test-coverage-info-list (sort (sort (hash->list file->lines-ht) 
-                                                      (λ (a b) (string<? (first a) (first b))))
-                                                (λ (a b) (eq? 0 (length (rest b)))))]                                         
-                 )
-            test-coverage-info-list))))
+    
     
     ; the dialog that displays the uncovered lines. Not a message box so the user can interact
     ; with DrRacket without having to close the dialog.

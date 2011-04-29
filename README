@@ -4,5 +4,5 @@ This tool adds another button to DrRacket labeled "Load Code Coverage." Clicking
 
 TODO:
 -Display covered/uncovered/modified files in the dialog box in distinct ways.
--Keep track of which files have been modified since their coverage was collected-Save coverage information
+-Keep track of which files have been modified and not saved since their coverage was collected 
 -Run some real tests
