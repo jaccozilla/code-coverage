@@ -93,7 +93,7 @@
         
         ;find the current tab's coverage info either from the current test-coverage-info (if it has been run) or from
         ; a saved one. If the test coverage does not need to be loaded (the program has recently been run) save it to 
-        ; coverage-file If the test coverage needs to be loaded from the saved one then check if the current tab has 
+        ; coverage-file. If the test coverage needs to be loaded then check if the current tab has 
         ; been modified since the coverage was saved and display a warning if it has. If no coverage information can 
         ; be found display a warning with suggestions to fix it.
         (define (get-test-coverage-info-ht current-tab coverage-file)
@@ -105,12 +105,14 @@
                   (save-test-coverage-info test-coverage-info-drracket coverage-file)
                   test-coverage-info-drracket)
                 (if (file-exists? coverage-file)
-                    (if (and (< (file-or-directory-modify-seconds coverage-file) (file-or-directory-modify-seconds source-file))
-                        (equal? (message-box coverage-label 
-                                     "The Coverage information is out of date. Run the program to update it. Selected \"ok\" to use the out of date coverage information." 
-                                     #f 
-                                     (list 'ok-cancel 'caution))
-                                'cancel))
+                    (if (and 
+                         (or (< (file-or-directory-modify-seconds coverage-file) (file-or-directory-modify-seconds source-file))
+                             (not (send (send current-tab get-frame) still-untouched?)))
+                         (equal? (message-box coverage-label 
+                                              "The Coverage information may be out of date. Run the program to update it." 
+                                              #f 
+                                              (list 'ok-cancel 'caution))
+                                 'cancel))
                         #f
                         (load-test-coverage-info coverage-file))
                     (begin 
