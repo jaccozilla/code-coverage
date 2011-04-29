@@ -6,4 +6,3 @@ TODO:
 -Display covered/uncovered/modified files in the dialog box in distinct ways.
 -Keep track of which files have been modified since their coverage was collected-Save coverage information
 -Run some real tests
--Display error if syntatic is not enabled

@@ -12,6 +12,7 @@
          racket/list
          mrlib/switchable-button
          errortrace/errortrace-lib
+         errortrace/stacktrace
          compiler/cm
          framework)
 (provide tool@)
@@ -44,6 +45,7 @@
         ; coverage information, look in the compiled directory for coverage info
         ; and display that.
         (define (load-coverage)
+          
           (let* ([current-tab (get-current-tab)]
                  [source-file (send (send current-tab get-defs) get-filename)]
                  [coverage-file (get-temp-coverage-file source-file)]
@@ -80,13 +82,17 @@
                                                       #f)])
                            (when located-file-tab
                              (send located-file-tab show-test-coverage-annotations test-coverage-info-ht #f #f #f))
-                             ))
+                           ))
                        coverage-report-list)
                   (save-test-coverage-info test-coverage-info-ht coverage-file)
                   
                   )
-                (message-box coverage-label "Run the program before attempting to load code coverage information"))
+                (message-box coverage-label 
+                             "No Code Coverage Information found. Make Syntactic Test Suite Coverage is enabled in Language->Chosse Language...->Dynamic Properties and the program has been run." 
+                             #f 
+                             (list 'ok 'stop)))
             )
+          
           )
         
         ;find the current tab's coverage info either from the current test-coverage-info (if it has been run) or from
