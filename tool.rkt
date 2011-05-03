@@ -28,6 +28,14 @@
     (export drracket:tool-exports^)
 
     
+    ;(define edit-mixin
+    ;  (mixin ((class->interface editor%)) ()
+    ;    (define/augment (after-edit-sequence)
+    ;      (fprintf (current-error-port) "after edit\n"))))
+    
+    ;       (define/augment (execute-callback)
+    ;         (fprintf (current-error-port) "after execute-callback\n"))
+    
     (define coverage-button-mixin
       (mixin (drracket:unit:frame<%>) ()
         (super-new)
@@ -243,20 +251,21 @@
         (new message% [parent dialog]
              [label (format "~a:" file)]	 
              )
-        ;(new message% [parent dialog]
-        ;     [label (format "~a" lines)]	 
-        ;     )
-        (new list-box%
-             [label ""]	 
-             [choices (map (λ (l) (format "~a" l)) lines)]	 
-             [parent dialog]
-             ;[min-height 150]
-             ;[vert-margin 0]
+        (new message% [parent dialog]
+             [label (foldl (λ (line cur-label) (string-append cur-label (format ", ~a" line))) (format "~a" (first lines)) (rest lines))]
+             ;[label (format "~a~a" (first lines) (map (λ (l) (format ", ~a" l)) (rest lines)))]	 
              )
+        ;(new list-box%
+        ;     [label ""]	 
+        ;     [choices (map (λ (l) (format "~a" l)) lines)]	 
+        ;     [parent dialog]
+        ;     ;[min-height 150]
+        ;     ;[vert-margin 0]
+        ;     )
         (define panel (new horizontal-panel% [parent dialog]
                      [alignment '(center center)]))
-        (new button% [parent panel] [label "Go To Line"]
-             [callback (λ (b e) (send dialog show #f))])
+        ;(new button% [parent panel] [label "Go To Line"]
+        ;     [callback (λ (b e) (send dialog show #f))])
         (new button% [parent panel] [label "Close"]
              [callback (λ (b e) (send dialog show #f))])
         dialog))
