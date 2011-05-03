@@ -10,6 +10,7 @@
          racket/serialize
          racket/port
          racket/list
+         racket/path
          mrlib/switchable-button
          errortrace/errortrace-lib
          errortrace/stacktrace
@@ -102,12 +103,13 @@
                  [test-coverage-info-drracket (send interactions-text get-test-coverage-info)])
             (if test-coverage-info-drracket
                 (begin
-                  (save-test-coverage-info test-coverage-info-drracket coverage-file)
+                  (when coverage-file
+                      (save-test-coverage-info test-coverage-info-drracket coverage-file))
                   (send interactions-text set-test-coverage-info #f) ;clear out drrackets test-coverage-info-ht so we can use our 
-                                                                     ;coverage file modified time as a reference of when coverage
+                                                                     ;coverage file modified time as a reference for when coverage
                                                                      ;was last run
                   test-coverage-info-drracket)
-                (if (file-exists? coverage-file)
+                (if (and coverage-file (file-exists? coverage-file))
                     (if (and 
                          (not (is-file-still-valid? source-file coverage-file))
                          (equal? (message-box coverage-label 
@@ -119,7 +121,7 @@
                         (load-test-coverage-info coverage-file))
                     (begin 
                       (message-box coverage-label 
-                             "No Code Coverage Information found. Make Syntactic Test Suite Coverage is enabled in Language->Chosse Language...->Dynamic Properties and the program has been run." 
+                             "No Code Coverage Information found. Make sure the program has been run and Syntactic Test Suite Coverage is enabled in Language->Chosse Language...->Dynamic Properties." 
                              #f 
                              (list 'ok 'stop))
                       #f)))))
@@ -146,52 +148,60 @@
     ;hasheq -> (list string? (pair boolean? (list integer?))))
     (define (make-coverage-report test-coverage-info-ht coverage-file)
       (let* ([file->lines-ht (make-hash)])
-        (begin
-          (hash-for-each test-coverage-info-ht 
-                         (λ (key value)
-                           (let* ([line (syntax-line key)]
-                                  [source (format "~a" (syntax-source key))]
-                                  [covered? (mcar value)]
-                                  [file->lines-value (hash-ref file->lines-ht source (cons (is-file-still-valid? (string->path source) coverage-file) (list)))])
-                             (hash-set! file->lines-ht source 
-                                        (if (or covered? (member line (cdr file->lines-value)))
-                                            file->lines-value
-                                            (cons (car file->lines-value) (sort (append (cdr file->lines-value) (list line)) <))
-                                            )))
-                           ))
-          (let* ([test-coverage-info-list (sort (sort (hash->list file->lines-ht) 
-                                                      (λ (a b) (string<? (first a) (first b))))
-                                                (λ (a b) (eq? 0 (length (cdr (rest b))))))]                                         
-                 )
-            test-coverage-info-list))))
+        (hash-for-each test-coverage-info-ht 
+                       (λ (key value)
+                         (let* ([line (syntax-line key)]
+                                [source (format "~a" (syntax-source key))]
+                                [covered? (mcar value)]
+                                [file->lines-value (hash-ref file->lines-ht source (cons (is-file-still-valid? (string->path source) coverage-file) (list)))])
+                           (hash-set! file->lines-ht source 
+                                      (if (or covered? (member line (cdr file->lines-value)))
+                                          file->lines-value
+                                          (cons (car file->lines-value) (sort (append (cdr file->lines-value) (list line)) <))
+                                          )))
+                         ))
+        (let* ([test-coverage-info-list (sort (sort (hash->list file->lines-ht) 
+                                                    (λ (a b) (string<? (first a) (first b))))
+                                              (λ (a b) (eq? 0 (length (cdr (rest b))))))])
+          test-coverage-info-list)))
     
     ;Compare file vs coverage-file to see if file has been modified since the coverage-file was saved, if it
     ;has this indicates that the coverage info may no longer be valid for file
     (define (is-file-still-valid? file coverage-file)
-      (let* ([file-modify-valid? (> (file-or-directory-modify-seconds coverage-file) (file-or-directory-modify-seconds file))]
-             [located-file-frame (send (group:get-the-frame-group) locate-file file)]
-             [file-untouched-valid? (if located-file-frame
-                                        #t ;(send located-file-frame still-untouched?) ;this seems to always return #f?
-                                        #t)])
-        ;(fprintf (current-error-port) "~a: ~a,~a\n" file file-modify-valid? file-untouched-valid?)
-        (and file-modify-valid? file-untouched-valid?)
-        ))
+      (if coverage-file
+          (let* ([file-modify-valid? (> (file-or-directory-modify-seconds coverage-file) (file-or-directory-modify-seconds file))]
+                 [located-file-frame (send (group:get-the-frame-group) locate-file file)]
+                 [file-untouched-valid? (if located-file-frame
+                                            #t ;(send located-file-frame still-untouched?) ;this seems to always return #f?
+                                            #t)])
+            ;(fprintf (current-error-port) "~a: ~a,~a\n" file file-modify-valid? file-untouched-valid?)
+            (and file-modify-valid? file-untouched-valid?)
+            )
+          #t ;no coverage-file indicating that the source file has not been saved, so they only way we coul dhave coverage info 
+          ;is if we got drracket's which means it is up to date.
+          ))
 
    
     
-    ;Get the name and location of a code coverage file based on the name of a source file.
-    ;Also creates the code coverage dir if it does not exisit
-    ;path? -> path?
+    ;Get the name and location of a code coverage file based on the name of a source file or
+    ;#f if the source file has not been saved. Also creates the code coverage dir if it does not exisit
+    ;path? -> (or path? #f)
     (define (get-temp-coverage-file source-file)
-      (begin
-        (define-values (file-base file-name must-be-dir) (split-path source-file))
-        (define temp-coverage-file-name (path-replace-suffix file-name coverage-suffix))
-        (define temp-coverage-dir (build-path file-base "compiled"))
-        (define temp-coverage-file (build-path temp-coverage-dir temp-coverage-file-name))
-        (when (not (directory-exists? temp-coverage-dir))
-          (make-directory temp-coverage-dir))
-        temp-coverage-file
-        ))
+      (if source-file
+          (let* ([file-base (file-dir-from-path source-file)]
+                 [file-name (file-name-from-path source-file)]
+                 [temp-coverage-file-name (path-replace-suffix file-name coverage-suffix)]
+                 [temp-coverage-dir (build-path file-base "compiled")]
+                 [temp-coverage-file (build-path temp-coverage-dir temp-coverage-file-name)])
+            (when (not (directory-exists? temp-coverage-dir))
+              (make-directory temp-coverage-dir))
+            temp-coverage-file
+            )
+          #f))
+    
+    (define (file-dir-from-path path)
+      (define-values (file-dir file-name must-be-dir) (split-path path))
+      file-dir)
     
     ;writes the test-coiverage-info hash table to the given file so that "load-test-coverage-info"
     ;can reconstruct the hash table
