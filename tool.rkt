@@ -62,13 +62,12 @@
             (when test-coverage-info-ht
                 (let* ([coverage-report-list (make-coverage-report test-coverage-info-ht coverage-file)]
                        [frame-group (group:get-the-frame-group)]
-                       [choice-index-list (get-choices-from-user
-                                           coverage-label
-                                           (format "Files covered by ~a" source-file)
-                                           (map (λ (item) (format "~a~a (~a%)" (first item) (if (second item) "" "*") (third item))) coverage-report-list)
-                                           #f
-                                           null
-                                           (list 'multiple))])
+                       [choice-pair (get-covered-files-from-user
+                                                 (format "Files covered by ~a" source-file)
+                                                 (map (λ (item) (format "~a~a (~a%)" (first item) (if (second item) "" "*") (third item))) coverage-report-list))]
+                       [choice-open-with (first choice-pair)]
+                       [choice-index-list (last choice-pair)]
+                       )
                   ;switch to or open a new frame with the selected file and display the uncoverd lines in a new dialog
                   (when choice-index-list
                     (map (λ (choice-index)
@@ -76,7 +75,7 @@
                                   [coverage-report-file (string->path (first coverage-report-item))]
                                   [coverage-report-lines (last coverage-report-item)])
                              (handler:edit-file coverage-report-file)
-                             (when (> (length coverage-report-lines) 0)
+                             (when (and choice-open-with (> (length coverage-report-lines) 0))
                                (send (uncovered-lines-dialog coverage-report-file coverage-report-lines) show #t))
                              ))
                          choice-index-list))
@@ -247,8 +246,55 @@
     
     
     
-    
-    
+    ;Similar to get-choices-from user, but has two open buttons. One with uncovered lines dialog and one without
+    ;string? (list string?) -> (list boolean? (list integer?))
+    (define (get-covered-files-from-user message choices)
+      (define button-pressed (box 'close))
+      (define (button-callback button) 
+        (λ (b e)
+          (set-box! button-pressed button)
+          (send dialog show #f)
+          ))
+      
+      (define (enable-open-buttons enable?)
+        (send open-button enable enable?)
+        (send open-with-button enable enable?))
+      
+      (define dialog (instantiate dialog% (coverage-label)))
+      (new message% [parent dialog] [label message])
+      (define list-box (new list-box% 
+                            [label ""]
+                            [choices choices]
+                            [parent dialog]
+                            [style '(multiple)]
+                            [callback (λ (c e) 
+                                        (if (> (length (send list-box get-selections)) 0)
+                                            (enable-open-buttons #t)
+                                            (enable-open-buttons #f)))
+                                      ]))
+      
+      (define panel (new horizontal-panel% [parent dialog]
+                         [alignment '(right center)]))
+      
+      
+      (define open-button (new button% [parent panel] 
+                               [label "Open"]
+                               [callback (button-callback 'open)]
+                               [enabled #f]))
+      (define open-with-button (new button% [parent panel] 
+                                    [label "Open With Uncoverd Lines Dialog"]
+                                    [callback (button-callback 'open-with)]
+                                    [enabled #f]))
+      (new button% [parent panel] 
+           [label "Close"]
+           [callback (button-callback 'close)])
+      
+      (send dialog show #t)
+      (case (unbox button-pressed)
+        ['open (list #f (send list-box get-selections))]
+        ['open-with (list #t (send list-box get-selections))]
+        [else (list #f #f)])
+      )
     
     ; the dialog that displays the uncovered lines. Not a message box so the user can interact
     ; with DrRacket without having to close the dialog.
