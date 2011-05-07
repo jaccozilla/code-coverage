@@ -65,13 +65,16 @@
                        [choice-index-list (get-choices-from-user
                                            coverage-label
                                            (format "Files covered by ~a" source-file)
-                                           (map (λ (item) (format "~a~a" (first item) (if (car (rest item)) "" "*"))) coverage-report-list))])
+                                           (map (λ (item) (format "~a~a (~a%)" (first item) (if (second item) "" "*") (third item))) coverage-report-list)
+                                           #f
+                                           null
+                                           (list 'multiple))])
                   ;switch to or open a new frame with the selected file and display the uncoverd lines in a new dialog
                   (when choice-index-list
                     (map (λ (choice-index)
                            (let* ([coverage-report-item (list-ref coverage-report-list choice-index)]
                                   [coverage-report-file (string->path (first coverage-report-item))]
-                                  [coverage-report-lines (cdr (rest coverage-report-item))])
+                                  [coverage-report-lines (last coverage-report-item)])
                              (handler:edit-file coverage-report-file)
                              (when (> (length coverage-report-lines) 0)
                                (send (uncovered-lines-dialog coverage-report-file coverage-report-lines) show #t))
@@ -152,8 +155,8 @@
         ))
     
     ;Takes a test-coverage-info-ht and returns a sorted (alphibetical, but with uncovered
-    ;files first) list of file-name coverage-is-valid? uncovered-lines.
-    ;hasheq -> (list string? (pair boolean? (list integer?))))
+    ;files first) list of file-name coverage-is-valid? %covered uncovered-lines.
+    ;hasheq path -> (list string?  boolean? integer? (list integer?))
     (define (make-coverage-report test-coverage-info-ht coverage-file)
       (let* ([file->lines-ht (make-hash)])
         (hash-for-each test-coverage-info-ht 
@@ -161,16 +164,19 @@
                          (let* ([line (syntax-line key)]
                                 [source (format "~a" (syntax-source key))]
                                 [covered? (mcar value)]
-                                [file->lines-value (hash-ref file->lines-ht source (cons (is-file-still-valid? (string->path source) coverage-file) (list)))])
+                                [file->lines-value (hash-ref file->lines-ht source (list (is-file-still-valid? (string->path source) coverage-file) 0 (list)))])
                            (hash-set! file->lines-ht source 
-                                      (if (or covered? (member line (cdr file->lines-value)))
-                                          file->lines-value
-                                          (cons (car file->lines-value) (sort (append (cdr file->lines-value) (list line)) <))
-                                          )))
-                         ))
-        (let* ([test-coverage-info-list (sort (sort (hash->list file->lines-ht) 
-                                                    (λ (a b) (string<? (first a) (first b))))
-                                              (λ (a b) (eq? 0 (length (cdr (rest b))))))])
+                                      (list (first file->lines-value) 
+                                            (max line (second file->lines-value))
+                                            (if (or covered? (member line (last file->lines-value)))
+                                                (last file->lines-value)
+                                                (sort (append (last file->lines-value) (list line)) <)))
+                                      ))))
+        (let* ([test-coverage-info-list (sort (map (λ (item) (list (first item) 
+                                                                   (second item)
+                                                                   (round (* (- 1 (/ (length (last item)) (third item))) 100)) ;compute uncoverd line %
+                                                                   (last item))) (hash->list file->lines-ht) )
+                                              (λ (a b) (< (third a) (third b))))])
           test-coverage-info-list)))
     
     ;Compare file vs coverage-file to see if file has been modified since the coverage-file was saved, if it
