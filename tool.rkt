@@ -28,14 +28,6 @@
     (export drracket:tool-exports^)
 
     
-    ;(define edit-mixin
-    ;  (mixin ((class->interface editor%)) ()
-    ;    (define/augment (after-edit-sequence)
-    ;      (fprintf (current-error-port) "after edit\n"))))
-    
-    ;       (define/augment (execute-callback)
-    ;         (fprintf (current-error-port) "after execute-callback\n"))
-    
     (define coverage-button-mixin
       (mixin (drracket:unit:frame<%>) ()
         (super-new)
@@ -83,14 +75,7 @@
                   ;send the coverage info to all files found in the coverage-report
                   (map (λ (report-item)
                          (let* ([coverage-report-file (string->path (first report-item))]
-                                [located-file-frame (send frame-group locate-file coverage-report-file)]
-                                [located-file-tab (if located-file-frame
-                                                      (findf (λ (t)
-                                                               (equal? 
-                                                                (send (send t get-defs) get-filename)
-                                                                coverage-report-file))
-                                                             (send located-file-frame get-tabs))
-                                                      #f)])
+                                [located-file-tab (locate-file-tab frame-group coverage-report-file)])
                            (when located-file-tab
                              (send located-file-tab show-test-coverage-annotations test-coverage-info-ht #f #f #f))
                            ))
@@ -185,12 +170,11 @@
           (let* ([file-modify-valid? (> (file-or-directory-modify-seconds coverage-file) (file-or-directory-modify-seconds file))]
                  [located-file-frame (send (group:get-the-frame-group) locate-file file)]
                  [file-untouched-valid? (if located-file-frame
-                                            #t ;(send located-file-frame still-untouched?) ;this seems to always return #f?
+                                            (not (send (send located-file-frame get-editor) is-modified?)) ;dosnt work for tabs
                                             #t)])
-            ;(fprintf (current-error-port) "~a: ~a,~a\n" file file-modify-valid? file-untouched-valid?)
             (and file-modify-valid? file-untouched-valid?)
             )
-          #t ;no coverage-file indicating that the source file has not been saved, so they only way we coul dhave coverage info 
+          #t ;no coverage-file indicating that the source file has not been saved, so they only way we could have coverage info 
           ;is if we got drracket's which means it is up to date.
           ))
 
@@ -245,6 +229,17 @@
                         (read (open-input-file coverage-file)))))
     
     
+    ;Locates the tab with the given file name from a group of frames
+    (define (locate-file-tab frame-group file)
+      (let*  ([located-file-frame (send frame-group locate-file file)]
+              [located-file-tab (if located-file-frame
+                                    (findf (λ (t)
+                                             (equal? 
+                                              (send (send t get-defs) get-filename)
+                                              file))
+                                           (send located-file-frame get-tabs))
+                                    #f)])
+        located-file-tab))
     
     ;Similar to get-choices-from user, but has two open buttons. One with uncovered lines dialog and one without
     ;string? (list string?) -> (list boolean? (list integer?))
@@ -269,7 +264,9 @@
                             [style '(multiple)]
                             [callback (λ (c e) 
                                         (if (> (length (send list-box get-selections)) 0)
-                                            (enable-open-buttons #t)
+                                            (if (eq? (send e get-event-type) 'list-box-dclick)
+                                                ((button-callback 'open) null null)
+                                                (enable-open-buttons #t))
                                             (enable-open-buttons #f)))
                                       ]))
       
@@ -280,7 +277,8 @@
       (define open-button (new button% [parent panel] 
                                [label "Open"]
                                [callback (button-callback 'open)]
-                               [enabled #f]))
+                               [enabled #f]
+                               [style '(border)]))
       (define open-with-button (new button% [parent panel] 
                                     [label "Open With Uncoverd Lines Dialog"]
                                     [callback (button-callback 'open-with)]
@@ -296,7 +294,7 @@
         [else (list #f #f)])
       )
     
-    ; the dialog that displays the uncovered lines. Not a message box so the user can interact
+    ; the dialog that displays the uncovered lines. Not a message box so the user can still interact
     ; with DrRacket without having to close the dialog.
     (define (uncovered-lines-dialog file lines)
       (let* ([dialog (instantiate frame% (coverage-label))])
