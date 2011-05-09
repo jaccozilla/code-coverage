@@ -241,6 +241,9 @@
                                     #f)])
         located-file-tab))
     
+    (define (get-listbox-min-height num-items)
+      (inexact->exact (min 500 (round (sqrt (* 600 num-items)))))) 
+    
     ;Similar to get-choices-from user, but has two open buttons. One with uncovered lines dialog and one without
     ;string? (list string?) -> (list boolean? (list integer?))
     (define (get-covered-files-from-user message choices)
@@ -262,6 +265,7 @@
                             [choices choices]
                             [parent dialog]
                             [style '(multiple)]
+                            [min-height (get-listbox-min-height (length choices))]
                             [callback (λ (c e) 
                                         (if (> (length (send list-box get-selections)) 0)
                                             (if (eq? (send e get-event-type) 'list-box-dclick)
@@ -271,7 +275,7 @@
                                       ]))
       
       (define panel (new horizontal-panel% [parent dialog]
-                         [alignment '(right center)]))
+                         [alignment '(right bottom)]))
       
       
       (define open-button (new button% [parent panel] 
@@ -301,19 +305,20 @@
         (new message% [parent dialog]
              [label (format "~a:" file)]	 
              )
-        (new message% [parent dialog]
-             [label (foldl (λ (line cur-label) (string-append cur-label (format ", ~a" line))) (format "~a" (first lines)) (rest lines))]
+       ; (new message% [parent dialog]
+       ;      [label (foldl (λ (line cur-label) (string-append cur-label (format ", ~a" line))) (format "~a" (first lines)) (rest lines))]
              ;[label (format "~a~a" (first lines) (map (λ (l) (format ", ~a" l)) (rest lines)))]	 
-             )
-        ;(new list-box%
-        ;     [label ""]	 
-        ;     [choices (map (λ (l) (format "~a" l)) lines)]	 
-        ;     [parent dialog]
-        ;     ;[min-height 150]
-        ;     ;[vert-margin 0]
         ;     )
+        ;(printf "~a\n" (inexact->exact (* 2 (length lines))))
+        (new list-box%
+             [label ""]	 
+             [choices (map (λ (l) (format "~a" l)) lines)]	 
+             [parent dialog]
+             [min-height (get-listbox-min-height (length lines))]
+             ;[vert-margin 0]
+             )
         (define panel (new horizontal-panel% [parent dialog]
-                     [alignment '(center center)]))
+                     [alignment '(right bottom)]))
         ;(new button% [parent panel] [label "Go To Line"]
         ;     [callback (λ (b e) (send dialog show #f))])
         (new button% [parent panel] [label "Close"]
