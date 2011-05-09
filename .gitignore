@@ -1,3 +1,6 @@
 *.bak
 *.1
 /compiled
+*.css
+*.js
+*.html

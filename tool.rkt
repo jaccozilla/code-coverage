@@ -108,7 +108,7 @@
                         (load-test-coverage-info coverage-file))
                     (begin 
                       (message-box coverage-label 
-                             "No Code Coverage Information found. Make sure the program has been run and Syntactic Test Suite Coverage is enabled in Language->Chosse Language...->Dynamic Properties." 
+                             (format "No Code Coverage Information found for ~a. Make sure the program has been run and Syntactic Test Suite Coverage is enabled in Language->Chosse Language...->Dynamic Properties." source-file)
                              #f 
                              (list 'ok 'stop))
                       #f)))))
@@ -185,7 +185,6 @@
                  [temp-coverage-file (build-path temp-coverage-dir temp-coverage-file-name)])
             (when (not (directory-exists? temp-coverage-dir))
               (make-directory temp-coverage-dir))
-            (printf "temp-coverage-file path? ~a\n"  (path? temp-coverage-file))
             temp-coverage-file
             )
           #f))
