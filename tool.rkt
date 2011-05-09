@@ -8,13 +8,9 @@
          racket/gui/base
          racket/unit
          racket/serialize
-         racket/port
          racket/list
          racket/path
          mrlib/switchable-button
-         errortrace/errortrace-lib
-         errortrace/stacktrace
-         compiler/cm
          framework)
 (provide tool@)
 
@@ -38,10 +34,10 @@
                  get-current-tab
                  get-interactions-text)
         
-        ;Applies code coverage highlighting to all currently open tabs. Displays 
+        ;Applies code coverage highlighting to all open files. Displays 
         ; a dialog with a list of files covered by the currently in focus file
         ; and allows the user to select a file to open and jump to. Coverage
-        ; information is first looked for in DrRacket (the program has been run)
+        ; information is first looked for in DrRacket (the program has just been run)
         ; If the program has not been run, or has been modified to invalidate it's
         ; coverage information, look in the compiled directory for coverage info
         ; and display that.
@@ -80,18 +76,14 @@
                              (send located-file-tab show-test-coverage-annotations test-coverage-info-ht #f #f #f))
                            ))
                        coverage-report-list)
-                  
-                  
-                  )
-                )
-            )
-          )
+                  ))))
         
-        ;find the current tab's coverage info either from the current test-coverage-info (if it has been run) or from
+        ;Get the given tab's coverage info, either from drrackets current test-coverage-info (if it has been run) or from
         ; a saved one. If the test coverage does not need to be loaded (the program has recently been run) save it to 
-        ; coverage-file. If the test coverage needs to be loaded then check if the current tab has 
+        ; coverage-file. If the test coverage needs to be loaded then check if the given tab has 
         ; been modified since the coverage was saved and display a warning if it has. If no coverage information can 
         ; be found display a warning with suggestions to fix it.
+        ;drracket:unit:tab<%> path? -> (or #f test-coverage-info)
         (define (get-test-coverage-info-ht current-tab coverage-file)
           (let* ([source-file (send (send current-tab get-defs) get-filename)]
                  [interactions-text (get-interactions-text)]
@@ -163,14 +155,15 @@
                                               (λ (a b) (< (third a) (third b))))])
           test-coverage-info-list)))
     
-    ;Compare file vs coverage-file to see if file has been modified since the coverage-file was saved, if it
-    ;has this indicates that the coverage info may no longer be valid for file
+    ;Determine coverage-file coverage info will still be valid for file. If file has been updated/modified
+    ;more recently than coverage-file this indicates that coverage-file's coverage info may not be valid for file
+    ;
     (define (is-file-still-valid? file coverage-file)
       (if coverage-file
           (let* ([file-modify-valid? (> (file-or-directory-modify-seconds coverage-file) (file-or-directory-modify-seconds file))]
                  [located-file-frame (send (group:get-the-frame-group) locate-file file)]
                  [file-untouched-valid? (if located-file-frame
-                                            (not (send (send located-file-frame get-editor) is-modified?)) ;dosnt work for tabs
+                                            (not (send (send located-file-frame get-editor) is-modified?)) ;dosnt work for individual tabs
                                             #t)])
             (and file-modify-valid? file-untouched-valid?)
             )
@@ -181,7 +174,7 @@
    
     
     ;Get the name and location of a code coverage file based on the name of a source file or
-    ;#f if the source file has not been saved. Also creates the code coverage dir if it does not exisit
+    ;#f if the source file has not been saved. Also creates coverage dir if it does not exisit
     ;path? -> (or path? #f)
     (define (get-temp-coverage-file source-file)
       (if source-file
@@ -192,10 +185,12 @@
                  [temp-coverage-file (build-path temp-coverage-dir temp-coverage-file-name)])
             (when (not (directory-exists? temp-coverage-dir))
               (make-directory temp-coverage-dir))
+            (printf "temp-coverage-file path? ~a\n"  (path? temp-coverage-file))
             temp-coverage-file
             )
           #f))
     
+    ;Get a the directory from path
     (define (file-dir-from-path path)
       (define-values (file-dir file-name must-be-dir) (split-path path))
       file-dir)
@@ -309,13 +304,11 @@
        ;      [label (foldl (λ (line cur-label) (string-append cur-label (format ", ~a" line))) (format "~a" (first lines)) (rest lines))]
              ;[label (format "~a~a" (first lines) (map (λ (l) (format ", ~a" l)) (rest lines)))]	 
         ;     )
-        ;(printf "~a\n" (inexact->exact (* 2 (length lines))))
         (new list-box%
              [label ""]	 
              [choices (map (λ (l) (format "~a" l)) lines)]	 
              [parent dialog]
              [min-height (get-listbox-min-height (length lines))]
-             ;[vert-margin 0]
              )
         (define panel (new horizontal-panel% [parent dialog]
                      [alignment '(right bottom)]))
