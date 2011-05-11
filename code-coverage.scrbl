@@ -17,7 +17,7 @@ Extended Code Coverage is a Planet package, however it only adds a tool rather t
 
 @section{Using the Tool}
 
-To use the extended code coverage tool first ensure that you have "Syntactic Test Suite Coverage" enabled in the "Choose Language" dialog. Then run the program you wish to collect coverage information for. Finally, click the "Load Code Coverage" button. A new dialog will apear with the list of file covered by the program you just ran. 
+First ensure that you have "Syntactic Test Suite Coverage" enabled in the "Language->Choose Language..." dialog. Then run the program you wish to collect coverage information for. Finally, click the "Load Code Coverage" button. A new dialog will apear with the list of file covered by the program you just ran. 
 
 You may then select one, or more, of the covered files to open and switch focus to. Additinaly, by clicking the "Open With Uncovered Lines Dialog" instead of just "Open" each selected file will spawn an additional dialog with a list of lines containing unevaluated expressions.
 

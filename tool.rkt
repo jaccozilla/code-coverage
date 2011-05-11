@@ -296,21 +296,20 @@
     ; with DrRacket without having to close the dialog.
     (define (uncovered-lines-dialog file lines)
       (let* ([dialog (instantiate frame% (coverage-label))])
-        (new message% [parent dialog]
-             [label (format "~a:" file)]	 
-             )
-       ; (new message% [parent dialog]
-       ;      [label (foldl (λ (line cur-label) (string-append cur-label (format ", ~a" line))) (format "~a" (first lines)) (rest lines))]
-             ;[label (format "~a~a" (first lines) (map (λ (l) (format ", ~a" l)) (rest lines)))]	 
-        ;     )
+        (new message% 
+             [parent dialog] 
+             [label "Lines containing uncovered code in"])
+        (new message% 
+             [parent dialog]
+             [label (format "~a:" file)])
         (new list-box%
              [label ""]	 
              [choices (map (λ (l) (format "~a" l)) lines)]	 
              [parent dialog]
-             [min-height (get-listbox-min-height (length lines))]
-             )
-        (define panel (new horizontal-panel% [parent dialog]
-                     [alignment '(right bottom)]))
+             [min-height (get-listbox-min-height (length lines))])
+        (define panel (new horizontal-panel% 
+                           [parent dialog]
+                           [alignment '(right bottom)]))
         ;(new button% [parent panel] [label "Go To Line"]
         ;     [callback (λ (b e) (send dialog show #f))])
         (new button% [parent panel] [label "Close"]
