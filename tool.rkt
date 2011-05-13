@@ -15,7 +15,7 @@
 (provide tool@)
 
 (define coverage-suffix ".rktcov")
-(define coverage-label "Code Coverage")
+(define coverage-label "Multi-File Code Coverage")
 (define button-label "Load Code Coverage")
 
 (define tool@
@@ -42,7 +42,6 @@
         ; coverage information, look in the compiled directory for coverage info
         ; and display that.
         (define (load-coverage)
-          
           (let* ([current-tab (get-current-tab)]
                  [source-file (send (send current-tab get-defs) get-filename)]
                  [coverage-file (get-temp-coverage-file source-file)]
@@ -88,7 +87,7 @@
           (let* ([source-file (send (send current-tab get-defs) get-filename)]
                  [interactions-text (get-interactions-text)]
                  [test-coverage-info-drracket (send interactions-text get-test-coverage-info)])
-            (if test-coverage-info-drracket
+            (if test-coverage-info-drracket ;if DrRacket has some test coverage info
                 (begin
                   (when coverage-file
                       (save-test-coverage-info test-coverage-info-drracket coverage-file))
@@ -96,22 +95,16 @@
                                                                      ;coverage file modified time as a reference for when coverage
                                                                      ;was last run
                   test-coverage-info-drracket)
-                (if (and coverage-file (file-exists? coverage-file))
-                    (if (and 
-                         (not (is-file-still-valid? source-file coverage-file))
-                         (equal? (message-box coverage-label 
-                                              "The Coverage information may be out of date. Run the program to update it." 
-                                              #f 
-                                              (list 'ok-cancel 'caution))
-                                 'cancel))
+                
+                (if (and coverage-file (file-exists? coverage-file)) ;Maybe we have some saved test coverage info?
+                    (if (and (not (is-file-still-valid? source-file coverage-file)) ;check if the saved info is up to date
+                             (not (out-of-date-coverage-message))) ;if its not up to date, ask the user if they want to use it anyways
                         #f
                         (load-test-coverage-info coverage-file))
-                    (begin 
-                      (message-box coverage-label 
-                             (format "No Code Coverage Information found for ~a. Make sure the program has been run and Syntactic Test Suite Coverage is enabled in Language->Chosse Language...->Dynamic Properties." source-file)
-                             #f 
-                             (list 'ok 'stop))
-                      #f)))))
+                    (begin ; no test coverage info, tell the user and how they might collect some
+                      (no-coverage-information-found-message source-file) 
+                      #f)
+                    ))))
         
        
         
@@ -155,7 +148,7 @@
                                               (λ (a b) (< (third a) (third b))))])
           test-coverage-info-list)))
     
-    ;Determine coverage-file coverage info will still be valid for file. If file has been updated/modified
+    ;Determine if coverage-file's coverage info will still be valid for file. If file has been updated/modified
     ;more recently than coverage-file this indicates that coverage-file's coverage info may not be valid for file
     ;
     (define (is-file-still-valid? file coverage-file)
@@ -235,8 +228,31 @@
                                     #f)])
         located-file-tab))
     
+    ;Do some random math to try and get a decent hight for a listbox based on the number of items in it
     (define (get-listbox-min-height num-items)
       (inexact->exact (min 500 (round (sqrt (* 600 num-items)))))) 
+    
+    
+    ;Display a message warning the user that the code coverage may be out of date
+    ;returns #t if the user clicks "Continue", #f otherwise
+    (define (out-of-date-coverage-message)
+      (equal?
+       (message-box/custom coverage-label 
+                           "The code coverage information may be out of date, run the program again to update it. Do you want to use it anyways?"
+                           "Continue" ;button 1
+                           "Cancel" ;button 2
+                           #f
+                           #f
+                           (list 'caution 'default=2))
+       1))
+    
+    ;Display a message informing the user that no multi-file code coverage info was found and how they might collect some
+    (define (no-coverage-information-found-message source-file)
+      (message-box coverage-label 
+                   (format "No multi-file code coverage information found for ~a. Make sure the program has been run and Syntactic Test Suite Coverage is enabled in Language->Choose Language...->Dynamic Properties." (if source-file source-file "Untitled"))
+                   #f 
+                   (list 'ok 'stop))
+      )
     
     ;Similar to get-choices-from user, but has two open buttons. One with uncovered lines dialog and one without
     ;string? (list string?) -> (list boolean? (list integer?))
@@ -269,7 +285,8 @@
                                       ]))
       
       (define panel (new horizontal-panel% [parent dialog]
-                         [alignment '(right bottom)]))
+                         [alignment '(right bottom)]
+                         [stretchable-height #f]))
       
       
       (define open-button (new button% [parent panel] 
@@ -278,7 +295,7 @@
                                [enabled #f]
                                [style '(border)]))
       (define open-with-button (new button% [parent panel] 
-                                    [label "Open With Uncoverd Lines Dialog"]
+                                    [label "Open With Uncovered Lines Dialog"]
                                     [callback (button-callback 'open-with)]
                                     [enabled #f]))
       (new button% [parent panel] 
@@ -292,8 +309,8 @@
         [else (list #f #f)])
       )
     
-    ; the dialog that displays the uncovered lines. Not a message box so the user can still interact
-    ; with DrRacket without having to close the dialog.
+    ; Dialog that displays the uncovered lines. Not a message box so the user can still interact
+    ; with DrRacket without having to close it.
     (define (uncovered-lines-dialog file lines)
       (let* ([dialog (instantiate frame% (coverage-label))])
         (new message% 
@@ -309,6 +326,7 @@
              [min-height (get-listbox-min-height (length lines))])
         (define panel (new horizontal-panel% 
                            [parent dialog]
+                           [stretchable-height #f]
                            [alignment '(right bottom)]))
         ;(new button% [parent panel] [label "Go To Line"]
         ;     [callback (λ (b e) (send dialog show #f))])
