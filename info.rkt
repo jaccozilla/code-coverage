@@ -1,9 +1,16 @@
 #lang setup/infotab
-(define drracket-name "Multi-File Code Coverage")
-(define drracket-tools (list (list "tool.rkt")))
-
 (define name "Multi-File Code Coverage")
 
+(define drracket-tools (list (list "tool.rkt")))
+(define drracket-name name)
+
+;keep 
+(define tool-name name)
+(define button-label "Multi-File Coverage")
+(define open-with-label "Open With Uncovered Lines Dialog")
+(define coverage-suffix ".rktcov")
+
+;Stuff for PLanet
 (define blurb
   `("Extends code coverage highlighting to multiple files"))
 (define categories `(devtools))

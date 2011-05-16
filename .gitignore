@@ -1,6 +1,15 @@
 *.bak
 *.1
 /compiled
+/planet-docs
 *.css
 *.js
 *.html
+*.aux
+*.log
+*.out
+*.gz
+code-coverage.tex
+*.tcp
+*.tps
+/report/output

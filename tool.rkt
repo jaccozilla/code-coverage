@@ -1,5 +1,6 @@
 #lang racket/base
-(require drracket/tool
+(require "info-helper.rkt"
+         drracket/tool
          drracket/tool-lib
          drracket/private/debug
          drracket/private/rep
@@ -13,10 +14,6 @@
          mrlib/switchable-button
          framework)
 (provide tool@)
-
-(define coverage-suffix ".rktcov")
-(define coverage-label "Multi-File Code Coverage")
-(define button-label "Load Code Coverage")
 
 (define tool@
   (unit
@@ -51,7 +48,12 @@
                        [frame-group (group:get-the-frame-group)]
                        [choice-pair (get-covered-files-from-user
                                                  (format "Files covered by ~a" source-file)
-                                                 (map (λ (item) (format "~a~a (~a%)" (first item) (if (second item) "" "*") (third item))) coverage-report-list))]
+                                                 (map (λ (item) 
+                                                        (format "~a~a (~a%)" 
+                                                                        (first item) 
+                                                                        (if (second item) "" "*") 
+                                                                        (third item)))
+                                                      coverage-report-list))]
                        [choice-open-with (first choice-pair)]
                        [choice-index-list (last choice-pair)]
                        )
@@ -60,8 +62,8 @@
                     (map (λ (choice-index)
                            (let* ([coverage-report-item (list-ref coverage-report-list choice-index)]
                                   [coverage-report-file (string->path (first coverage-report-item))]
-                                  [coverage-report-lines (last coverage-report-item)])
-                             (handler:edit-file coverage-report-file)
+                                  [coverage-report-lines (last coverage-report-item)]
+                                  [edit-frame (handler:edit-file coverage-report-file)])
                              (when (and choice-open-with (> (length coverage-report-lines) 0))
                                (send (uncovered-lines-dialog coverage-report-file coverage-report-lines) show #t))
                              ))
@@ -91,14 +93,15 @@
                 (begin
                   (when coverage-file
                       (save-test-coverage-info test-coverage-info-drracket coverage-file))
-                  (send interactions-text set-test-coverage-info #f) ;clear out drrackets test-coverage-info-ht so we can use our 
-                                                                     ;coverage file modified time as a reference for when coverage
-                                                                     ;was last run
+                  (send interactions-text set-test-coverage-info #f) ;clear out drrackets test-coverage-info-ht so we can use  
+                                                                     ;our coverage file modified time as a reference for when 
+                                                                     ;coverage was last run
                   test-coverage-info-drracket)
                 
                 (if (and coverage-file (file-exists? coverage-file)) ;Maybe we have some saved test coverage info?
                     (if (and (not (is-file-still-valid? source-file coverage-file)) ;check if the saved info is up to date
-                             (not (out-of-date-coverage-message))) ;if its not up to date, ask the user if they want to use it anyways
+                             (not (out-of-date-coverage-message))) ;if its not up to date, ask the user if they want to 
+                                                                   ;use it anyways
                         #f
                         (load-test-coverage-info coverage-file))
                     (begin ; no test coverage info, tell the user and how they might collect some
@@ -133,7 +136,13 @@
                          (let* ([line (syntax-line key)]
                                 [source (format "~a" (syntax-source key))]
                                 [covered? (mcar value)]
-                                [file->lines-value (hash-ref file->lines-ht source (list (is-file-still-valid? (string->path source) coverage-file) 0 (list)))])
+                                [file->lines-value (hash-ref file->lines-ht 
+                                                             source 
+                                                             (list 
+                                                              (is-file-still-valid? (string->path source) coverage-file) 
+                                                              0 ;number of lines in the file
+                                                              (list) ;list of uncovered lines
+                                                              ))])
                            (hash-set! file->lines-ht source 
                                       (list (first file->lines-value) 
                                             (max line (second file->lines-value))
@@ -143,8 +152,9 @@
                                       ))))
         (let* ([test-coverage-info-list (sort (map (λ (item) (list (first item) 
                                                                    (second item)
-                                                                   (round (* (- 1 (/ (length (last item)) (third item))) 100)) ;compute uncoverd line %
-                                                                   (last item))) (hash->list file->lines-ht) )
+                                                                   (get-percent (length (last item)) (third item))
+                                                                   (last item))) 
+                                                   (hash->list file->lines-ht))
                                               (λ (a b) (< (third a) (third b))))])
           test-coverage-info-list)))
     
@@ -153,10 +163,12 @@
     ;
     (define (is-file-still-valid? file coverage-file)
       (if coverage-file
-          (let* ([file-modify-valid? (> (file-or-directory-modify-seconds coverage-file) (file-or-directory-modify-seconds file))]
+          (let* ([file-modify-valid? (> (file-or-directory-modify-seconds coverage-file) 
+                                        (file-or-directory-modify-seconds file))]
                  [located-file-frame (send (group:get-the-frame-group) locate-file file)]
                  [file-untouched-valid? (if located-file-frame
-                                            (not (send (send located-file-frame get-editor) is-modified?)) ;dosnt work for individual tabs
+                                            ;dosnt work for individual tabs inside of a single frame
+                                            (not (send (send located-file-frame get-editor) is-modified?)) 
                                             #t)])
             (and file-modify-valid? file-untouched-valid?)
             )
@@ -212,7 +224,13 @@
       (make-hasheq (map (lambda (element)
                           (let* ([key (car element)]
                                  [value (cdr element)])
-                            (cons (datum->syntax #f (void) (list (deserialize (car key)) (cadddr key) 1 (cadr key) (caddr key))) (mcons (car value) (cdr value)))))
+                            (cons (datum->syntax #f (void) (list 
+                                                            (deserialize (car key)) 
+                                                            (cadddr key) 
+                                                            1 
+                                                            (cadr key) 
+                                                            (caddr key))) 
+                                  (mcons (car value) (cdr value)))))
                         (read (open-input-file coverage-file)))))
     
     
@@ -232,13 +250,17 @@
     (define (get-listbox-min-height num-items)
       (inexact->exact (min 500 (round (sqrt (* 600 num-items)))))) 
     
+    ;compute the percent of num/total rounded to a whole percent
+    (define (get-percent num total)
+      (round (* (- 1 (/ num total)) 100)))
     
     ;Display a message warning the user that the code coverage may be out of date
     ;returns #t if the user clicks "Continue", #f otherwise
     (define (out-of-date-coverage-message)
       (equal?
-       (message-box/custom coverage-label 
-                           "The code coverage information may be out of date, run the program again to update it. Do you want to use it anyways?"
+       (message-box/custom tool-name 
+                           (string-append "The multi-file code coverage information may be out of date, "
+                                         "run the program again to update it. Do you want to use it anyways?")
                            "Continue" ;button 1
                            "Cancel" ;button 2
                            #f
@@ -248,8 +270,11 @@
     
     ;Display a message informing the user that no multi-file code coverage info was found and how they might collect some
     (define (no-coverage-information-found-message source-file)
-      (message-box coverage-label 
-                   (format "No multi-file code coverage information found for ~a. Make sure the program has been run and Syntactic Test Suite Coverage is enabled in Language->Choose Language...->Dynamic Properties." (if source-file source-file "Untitled"))
+      (message-box tool-name 
+                   (format (string-append "No multi-file code coverage information found for ~a. "
+                                          "Make sure the program has been run and Syntactic Test Suite Coverage "
+                                          "is enabled in Language->Choose Language...->Dynamic Properties.") 
+                           (if source-file source-file "Untitled"))
                    #f 
                    (list 'ok 'stop))
       )
@@ -268,7 +293,7 @@
         (send open-button enable enable?)
         (send open-with-button enable enable?))
       
-      (define dialog (instantiate dialog% (coverage-label)))
+      (define dialog (instantiate dialog% (tool-name)))
       (new message% [parent dialog] [label message])
       (define list-box (new list-box% 
                             [label ""]
@@ -295,7 +320,7 @@
                                [enabled #f]
                                [style '(border)]))
       (define open-with-button (new button% [parent panel] 
-                                    [label "Open With Uncovered Lines Dialog"]
+                                    [label open-with-label]
                                     [callback (button-callback 'open-with)]
                                     [enabled #f]))
       (new button% [parent panel] 
@@ -312,25 +337,40 @@
     ; Dialog that displays the uncovered lines. Not a message box so the user can still interact
     ; with DrRacket without having to close it.
     (define (uncovered-lines-dialog file lines)
-      (let* ([dialog (instantiate frame% (coverage-label))])
+      (let* ([dialog (instantiate frame% (tool-name))])
         (new message% 
              [parent dialog] 
              [label "Lines containing uncovered code in"])
         (new message% 
              [parent dialog]
              [label (format "~a:" file)])
-        (new list-box%
-             [label ""]	 
-             [choices (map (λ (l) (format "~a" l)) lines)]	 
+        (define text-field (new text-field%	
+             [label ""]
              [parent dialog]
-             [min-height (get-listbox-min-height (length lines))])
+             [enabled #f]
+             ;[init-value ]
+             [style (list 'multiple)]))
+        (send text-field set-value (foldl (λ (item text) 
+                                  (string-append text 
+                                                 (if (equal? text "") "" ", ")
+                                                 (number->string item))) 
+                                "" lines))
+        ;(send text-field enable #f)
+        ;(new list-box%
+        ;     [label ""]	 
+        ;     [choices (map (λ (l) (format "~a" l)) lines)]	 
+        ;     [parent dialog]
+        ;     [min-height (get-listbox-min-height (length lines))])
         (define panel (new horizontal-panel% 
                            [parent dialog]
                            [stretchable-height #f]
                            [alignment '(right bottom)]))
         ;(new button% [parent panel] [label "Go To Line"]
         ;     [callback (λ (b e) (send dialog show #f))])
-        (new button% [parent panel] [label "Close"]
+        (new button% 
+             [parent panel] 
+             [label "Close"]
+             [style '(border)]
              [callback (λ (b e) (send dialog show #f))])
         dialog))
     
@@ -347,7 +387,6 @@
         (send bdc draw-rectangle 11 5 14 9)
         (send bdc set-bitmap #f)
         bmp))
-    
     
     (define (phase1) (void))
     (define (phase2) (void))
