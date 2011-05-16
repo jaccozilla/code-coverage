@@ -1,0 +1,113 @@
+\documentclass[final]{article}
+\usepackage{verbatim}
+\usepackage[final]{pdfpages}
+
+\begin{document}
+
+%filename, caption, width in mm
+\newcommand{\newfigure}[3]{
+	\begin{figure}
+	\begin{center}
+	\includegraphics[#3]{figures/#1.png}
+	\caption{#2}
+	\end{center}
+	\label{#1}
+	\addtocontents{lof}{\vskip 1.0em}
+	\end{figure}
+}
+
+\newcommand{\spacesubsection}[1]{
+	\subsection{#1}
+	\addtocontents{toc}{\vskip 1.0em}
+}
+%%%%% Title Page %%%%%%
+\title{Multi-File DrRacket Code Coverage}
+\author{Jonathan Walsh}
+\date{\vfill
+Computer Science Department \\
+College of Engineering \\
+California Polytechnic State University \\
+2011\\[8mm]
+\begin{flushright}
+Submitted: \today\\
+Advisor: John Clements
+\end{flushright}}
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+%-------------------- Front Matter --------------------%
+
+%%%%% Table of Contents %%%%%
+\renewcommand{\thesubsection}{\Roman{subsection}}
+\renewcommand{\thesubsubsection}{\arabic{subsection}}
+\pagenumbering{roman} 
+\tableofcontents 
+\newpage
+
+%%%%% Abstract %%%%%
+\addcontentsline{toc}{section}{\textnormal{Abstract}}
+\section*{Abstract}
+\input{sections/abstract.tex}
+\newpage
+
+%%%%% List of Figures %%%%%
+\addcontentsline{toc}{section}{\textnormal{List Of Figures}}
+\listoffigures
+\newpage
+
+%-------------------- Report --------------------%
+\pagenumbering{arabic} 
+\addtocontents{toc}{\contentsline {section}{\normalfont{\textit{Section}}}{}}
+
+%%%%% Intro %%%%%
+\spacesubsection{Introduction}
+\input{sections/introduction.tex}
+
+%%%%% Background %%%%%
+\spacesubsection{Background}
+\input{sections/background.tex}
+
+%%%%% Implementation %%%%%
+\spacesubsection{Implementation}
+\input{sections/implementation.tex}
+
+%%%%% Evaluation %%%%%
+\spacesubsection{Evaluation}
+\input{sections/evaluation.tex}
+
+%%%%% Conclustion %%%%%
+\spacesubsection{Conclusion}
+\input{sections/conclusion.tex}
+
+%-------------------- Appendix --------------------%
+\newpage
+\addtocontents{toc}{\contentsline {section}{\normalfont{\textit{Appendix}}}{}}
+\renewcommand{\thesubsection}{\Alph{subsection}}
+\appendix
+
+%%%% Source Code %%%%
+\spacesubsection{Source Code}
+\subsubsection*{info.rkt}
+\tiny{
+\verbatiminput{../info.rkt}
+}
+
+\subsubsection*{info-helper.rkt}
+\tiny{
+\verbatiminput{../info-helper.rkt}
+}
+
+\subsubsection*{tool.rkt}
+\tiny{
+\verbatiminput{../tool.rkt}
+}
+
+%%%%% PLaneT Documentation %%%%%
+% steps to get it in here:
+% 1) generate latex from code-coverage.scrbl
+% 2) in the .tex file add \setcounter{page}{<page number>} right after the documentclass
+% 3) generate a pdf from the .tex file
+\spacesubsection{PLaneT Documentation}
+\includepdf[pages=-]{scribble/code-coverage.pdf}
+\end{document}

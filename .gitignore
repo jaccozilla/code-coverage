@@ -9,7 +9,9 @@
 *.log
 *.out
 *.gz
-code-coverage.tex
 *.tcp
 *.tps
-/report/output
+*.toc
+*.lof
+*.txt
+*.synctex
