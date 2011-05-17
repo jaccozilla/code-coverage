@@ -1,3 +1,4 @@
 #lang racket
+(require "info-helper.rkt")
 
-(printf "The Extended Code Coverage tool is now installed. Restart DrRacket to see the new button.")
+(printf (format "The ~a tool is now installed. Restart DrRacket to see the new button." tool-name))

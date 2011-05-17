@@ -100,7 +100,7 @@
                 
                 (if (and coverage-file (file-exists? coverage-file)) ;Maybe we have some saved test coverage info?
                     (if (and (not (is-file-still-valid? source-file coverage-file)) ;check if the saved info is up to date
-                             (not (out-of-date-coverage-message))) ;if its not up to date, ask the user if they want to 
+                             (not (out-of-date-coverage-message coverage-file))) ;if its not up to date, ask the user if they want to 
                                                                    ;use it anyways
                         #f
                         (load-test-coverage-info coverage-file))
@@ -256,11 +256,12 @@
     
     ;Display a message warning the user that the code coverage may be out of date
     ;returns #t if the user clicks "Continue", #f otherwise
-    (define (out-of-date-coverage-message)
+    (define (out-of-date-coverage-message file)
       (equal?
        (message-box/custom tool-name 
-                           (string-append "The multi-file code coverage information may be out of date, "
-                                         "run the program again to update it. Do you want to use it anyways?")
+                           (string-append (format "The multi-file code coverage information for ~a" file)
+                                          " may be out of date, run the program again to update it." 
+                                          " Do you want to use it anyways?")
                            "Continue" ;button 1
                            "Cancel" ;button 2
                            #f
@@ -347,26 +348,19 @@
         (define text-field (new text-field%	
              [label ""]
              [parent dialog]
-             [enabled #f]
-             ;[init-value ]
              [style (list 'multiple)]))
         (send text-field set-value (foldl (λ (item text) 
                                   (string-append text 
                                                  (if (equal? text "") "" ", ")
                                                  (number->string item))) 
                                 "" lines))
-        ;(send text-field enable #f)
-        ;(new list-box%
-        ;     [label ""]	 
-        ;     [choices (map (λ (l) (format "~a" l)) lines)]	 
-        ;     [parent dialog]
-        ;     [min-height (get-listbox-min-height (length lines))])
+        (send (send text-field get-editor) lock #t)
+
         (define panel (new horizontal-panel% 
                            [parent dialog]
                            [stretchable-height #f]
                            [alignment '(right bottom)]))
-        ;(new button% [parent panel] [label "Go To Line"]
-        ;     [callback (λ (b e) (send dialog show #f))])
+
         (new button% 
              [parent panel] 
              [label "Close"]

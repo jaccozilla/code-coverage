@@ -1,5 +1,5 @@
 #lang racket
-;Provide the names of labels and other items that are used across info.rkt, tool.rkt, 
+;Provides the names of labels and other items that are used across info.rkt, tool.rkt, 
 ; and code-coverage.scrbl so that to change the value in all 3 locations only info.rkt
 ; needs to be updated
 (require setup/getinfo)

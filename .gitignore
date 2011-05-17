@@ -15,3 +15,6 @@
 *.lof
 *.txt
 *.synctex
+*.plt
+report/scribble/page-number.tex
+multi-file-code-coverage
