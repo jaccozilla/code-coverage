@@ -30,6 +30,10 @@ The percent in parentheses, next to each file, is the percent of covered lines i
 
 An asterisk may appear next to files in the covered files dialog. This indicates that the file has been modified since multi-file coverage information was last collected, which may have invalidated its coverage info. To ensure that all coverage information is valid run the program you are collecting multi-file code coverage for again.
 
+@subsection{Saving Coverage Information}
+
+Whenever the "@button-label" button is clicked the multi-file code coverage information is saved to a file. This file is named <file name>@coverage-suffix and saved in the "compiled" directory next to the source file.
+
 @subsection{Why doesn't my source file show up in the covered files dialog?}
 
 Only un-compiled files will appear in the covered files dialog. To ensure that all your covered files appear delete any "compiled" directories next to your source files. Then run your program again and click the "@button-label" button.

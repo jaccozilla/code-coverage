@@ -16,7 +16,7 @@
 (define categories `(devtools))
 (define primary-file '("main.rkt"))
 (define release-notes 
-  `("Rewording of dialog boxes to be more clear"))
-(define version "0.2")
+  `("Locked the uncovered lines dialog box's editor"))
+(define version "0.3")
 (define repositories '("4.x"))
 (define scribblings '(("code-coverage.scrbl" ())))
