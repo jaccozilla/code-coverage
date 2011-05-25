@@ -44,7 +44,19 @@
                  [coverage-file (get-temp-coverage-file source-file)]
                  [test-coverage-info-ht (get-test-coverage-info-ht current-tab coverage-file)])
             (when test-coverage-info-ht
-                (let* ([coverage-report-list (make-coverage-report test-coverage-info-ht coverage-file)]
+              (begin
+                (define coverage-report-list (make-coverage-report test-coverage-info-ht coverage-file))
+                
+                ;send the coverage info to all files found in the coverage-report
+                (map (λ (report-item)
+                       (let* ([coverage-report-file (string->path (first report-item))]
+                              [located-file-tab (locate-file-tab (group:get-the-frame-group) coverage-report-file)])
+                         (when located-file-tab
+                           (send located-file-tab show-test-coverage-annotations test-coverage-info-ht #f #f #f))
+                         ))
+                     coverage-report-list)
+                
+                (let* (;[coverage-report-list (make-coverage-report test-coverage-info-ht coverage-file)]
                        [frame-group (group:get-the-frame-group)]
                        [choice-pair (get-covered-files-from-user
                                                  (format "Files covered by ~a" source-file)
@@ -66,18 +78,16 @@
                                   [edit-frame (handler:edit-file coverage-report-file)])
                              (when (and choice-open-with (> (length coverage-report-lines) 0))
                                (send (uncovered-lines-dialog coverage-report-file coverage-report-lines) show #t))
+                             
+                             ;send coverage info to the newly opened file
+                             (define located-file-tab (locate-file-tab frame-group coverage-report-file))
+                             (when located-file-tab
+                               (send located-file-tab show-test-coverage-annotations test-coverage-info-ht #f #f #f))
                              ))
                          choice-index-list))
                   
-                  ;send the coverage info to all files found in the coverage-report
-                  (map (λ (report-item)
-                         (let* ([coverage-report-file (string->path (first report-item))]
-                                [located-file-tab (locate-file-tab frame-group coverage-report-file)])
-                           (when located-file-tab
-                             (send located-file-tab show-test-coverage-annotations test-coverage-info-ht #f #f #f))
-                           ))
-                       coverage-report-list)
-                  ))))
+                  
+                  )))))
         
         ;Get the given tab's coverage info, either from drrackets current test-coverage-info (if it has been run) or from
         ; a saved one. If the test coverage does not need to be loaded (the program has recently been run) save it to 

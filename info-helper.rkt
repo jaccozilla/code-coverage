@@ -16,4 +16,3 @@
 (define tool-name (info-look-up 'tool-name))
 (define button-label (info-look-up 'button-label))
 (define open-with-label (info-look-up 'open-with-label))
-         

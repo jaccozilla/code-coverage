@@ -18,3 +18,4 @@
 *.plt
 report/scribble/page-number.tex
 multi-file-code-coverage
+/*.png
