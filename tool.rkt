@@ -109,8 +109,8 @@
                 
                 (if (and coverage-file (file-exists? coverage-file)) ;Maybe we have some saved test coverage info?
                     (if (and (not (is-file-still-valid? source-file coverage-file)) ;check if the saved info is up to date
-                             (not (out-of-date-coverage-message coverage-file))) ;if its not up to date, ask the user if they want to 
-                                                                   ;use it anyways
+                             (not (out-of-date-coverage-message coverage-file))) ;if its not up to date, ask the user if 
+                                                                                 ;they want to use it anyways
                         #f
                         (load-test-coverage-info coverage-file))
                     (begin ; no test coverage info, tell the user and how they might collect some
