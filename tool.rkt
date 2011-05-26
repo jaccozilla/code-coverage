@@ -56,8 +56,7 @@
                          ))
                      coverage-report-list)
                 
-                (let* (;[coverage-report-list (make-coverage-report test-coverage-info-ht coverage-file)]
-                       [frame-group (group:get-the-frame-group)]
+                (let* ([frame-group (group:get-the-frame-group)]
                        [choice-pair (get-covered-files-from-user
                                                  (format "Files covered by ~a" source-file)
                                                  (map (λ (item) 
@@ -260,9 +259,12 @@
     (define (get-listbox-min-height num-items)
       (inexact->exact (min 500 (round (sqrt (* 600 num-items)))))) 
     
-    ;compute the percent of num/total rounded to a whole percent
-    (define (get-percent num total)
-      (round (* (- 1 (/ num total)) 100)))
+    ;compute the percent of uncovered lines rounded to a whole percent. Only return 100 the number of
+    ; uncovered lines is exactly 0
+    (define (get-percent num-uncovered total)
+      (if (= num-uncovered 0)
+          100
+          (min (round (* (- 1 (/ num-uncovered total)) 100)) 99)))
     
     ;Display a message warning the user that the code coverage may be out of date
     ;returns #t if the user clicks "Continue", #f otherwise
