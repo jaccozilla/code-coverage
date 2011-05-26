@@ -297,13 +297,24 @@
       (define (button-callback button) 
         (λ (b e)
           (set-box! button-pressed button)
-          (send dialog show #f)
-          ))
+          (send dialog show #f)))
       
       (define (enable-open-buttons enable?)
         (send open-button enable enable?)
-        (send open-with-button enable enable?))
-      
+        (send open-with-button enable enable?)
+        (if enable?
+            
+            (when (send close-button-border is-shown?)
+              (begin
+                (send panel delete-child close-button-border)
+                (send panel add-child close-button)))
+            
+            (when (send close-button is-shown?)
+              (begin
+                (send panel delete-child close-button)
+                (send panel add-child close-button-border))))
+      )
+    
       (define dialog (instantiate dialog% (tool-name)))
       (new message% [parent dialog] [label message])
       (define list-box (new list-box% 
@@ -334,9 +345,14 @@
                                     [label open-with-label]
                                     [callback (button-callback 'open-with)]
                                     [enabled #f]))
-      (new button% [parent panel] 
-           [label "Close"]
-           [callback (button-callback 'close)])
+      (define close-button-border (new button% [parent panel] 
+                                       [label "Close"]
+                                       [style '(border)]
+                                       [callback (button-callback 'close)]))
+      (define close-button (new button% [parent panel] 
+                                [label "Close"]
+                                [style '(deleted)]
+                                [callback (button-callback 'close)]))
       
       (send dialog show #t)
       (case (unbox button-pressed)
