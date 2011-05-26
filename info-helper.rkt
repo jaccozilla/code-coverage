@@ -9,7 +9,7 @@
          button-label
          open-with-label)
 
-(define info-proc (get-info (list "code-coverage")))
+(define info-proc (get-info/full (current-directory)))
 (define (info-look-up name) (info-proc name (λ () (symbol->string name))))
 
 (define coverage-suffix (info-look-up 'coverage-suffix))
