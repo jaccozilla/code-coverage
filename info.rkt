@@ -4,11 +4,14 @@
 (define drracket-tools (list (list "tool.rkt")))
 (define drracket-name name)
 
-;keep 
+(define multi-file-code-coverage-info-file #t) ;used by info-helper to find this file
+
+;Names, labels, and other items that the docs and source code will have in common
 (define tool-name name)
 (define button-label "Multi-File Coverage")
 (define open-with-label "Open With Uncovered Lines Dialog")
 (define coverage-suffix ".rktcov")
+
 
 ;Stuff for PLanet
 (define blurb
@@ -19,4 +22,4 @@
   `("Locked the uncovered lines dialog box's editor"))
 (define version "0.3")
 (define repositories '("4.x"))
-(define scribblings '(("code-coverage.scrbl" ())))
+;(define scribblings '(("code-coverage.scrbl" ())))
