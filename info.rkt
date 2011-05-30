@@ -19,7 +19,7 @@
 (define categories `(devtools))
 (define primary-file '("main.rkt"))
 (define release-notes 
-  `("Locked the uncovered lines dialog box's editor"))
-(define version "0.3")
+  `("Updated Documentation"))
+(define version "0.4")
 (define repositories '("4.x"))
-;(define scribblings '(("code-coverage.scrbl" ())))
+(define scribblings '(("code-coverage.scrbl" ())))

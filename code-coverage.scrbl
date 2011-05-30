@@ -26,14 +26,14 @@ Multi-File Code Coverage is a Planet package, however it only adds a tool rather
 
 @section{Using the Tool}
 
-First ensure that you have "Syntactic Test Suite Coverage" enabled in the "Language->Choose Language..." dialog. Then run the program you wish to collect multi-file coverage information for. Finally, click the "@button-label" button. This will send the coverage information to other open files and apply code coverage highlighting to them. The @secref[@(covered-files-dialog-name)] will also apear containing the list of files covered by the program you just ran.
+First ensure that you have "Syntactic Test Suite Coverage" enabled in the "Language->Choose Language..." dialog. You may need to click the "Show Details" button to see the expanded options. Then run the program you wish to collect multi-file coverage information for. Finally, click the "@button-label" button. This will send the coverage information to other open files and apply code coverage highlighting to them. The @secref[@(covered-files-dialog-name)] will also appear containing the list of files covered by the program you just ran.
 
-You may then select one, or more, of the covered files to open and switch focus to. Additinaly, by clicking the "@open-with-label", instead of just "Open", each selected file will spawn the @secref[@(uncovered-lines-dialog-name)] with a list of lines containing unevaluated expressions.
+You may then select one, or more, of the covered files to open and switch focus to. Additionally, by clicking the "@open-with-label", instead of just "Open", each selected file will spawn the @secref[@(uncovered-lines-dialog-name)] with a list of lines containing unevaluated expressions.
 
 
 @section[#:tag @(covered-files-dialog-name)]{@(covered-files-dialog-name)}
 
-The @secref[@(covered-files-dialog-name)] appears after clicking the "@button-label" button. It displays a list of files covered by the currently infocus program and allows the selection of a file to open and switch focus to.
+The @secref[@(covered-files-dialog-name)] appears after clicking the "@button-label" button. It displays a list of files covered by the currently in-focus program and allows the selection of a file to open and switch focus to.
 
 
 @centered{
@@ -69,7 +69,6 @@ Whenever the "@button-label" button is clicked the multi-file code coverage info
 @subsection{My source file doesn't show up in the covered files dialog}
 
 Only un-compiled files will appear in the @secref[@(covered-files-dialog-name)]. To ensure that all your covered files appear delete any "compiled" directories next to your source files. Then run your program again and click the "@button-label" button.
-
 
 
 

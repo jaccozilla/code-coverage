@@ -10,8 +10,14 @@
          button-label
          open-with-label)
 
-(define info-proc (get-info/full 
-                   (first (find-relevant-directories '(multi-file-code-coverage-info-file)))))
+(define package-dir 
+  (let* ([rel-dirs (find-relevant-directories '(multi-file-code-coverage-info-file))])
+    (if (> (length rel-dirs) 0)
+        (first rel-dirs)
+        (current-directory)))
+  )
+
+(define info-proc (get-info/full package-dir))
 
 (define (info-look-up name) (if info-proc
                                 (info-proc name (λ () (symbol->string name)))

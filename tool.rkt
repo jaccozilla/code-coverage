@@ -324,7 +324,7 @@
                             [choices choices]
                             [parent dialog]
                             [style '(multiple)]
-                            [min-height (get-listbox-min-height (length choices))]
+                            ;[min-height (get-listbox-min-height (length choices))]
                             [callback (λ (c e) 
                                         (if (> (length (send list-box get-selections)) 0)
                                             (if (eq? (send e get-event-type) 'list-box-dclick)
