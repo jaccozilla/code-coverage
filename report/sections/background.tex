@@ -1,1 +1,12 @@
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
+Racket is a programming language \cite{racket}. Included with every download of Racket is an integrated development environment DrRacket. DrRacket is the ``official'' IDE for Racket and is maintained by the same core group of contributors. 
+
+DrRacket's user interface is divided into two main areas. The definitions window, by default on top, and the interactions window. The definitions window contains the source file while the interactions window displays the program's output. Above the definitions window are a horizontal list of buttons. Included in this list is the ``run'' button, which when pressed executes the program in the definitions window. See figure \ref{fig:drracket} for a sample DrRacket environment.
+
+Dr Racket's default code coverage can be enabled by selecting ``Syntactic Test Suite Coverage'' in the ``Choose Language'' dialog. Once code coverage has been enabled it is collected every time the program is run by clicking the ``run'' button. 
+The code coverage information is then displayed by coloring converted text in green and uncovered text in red (Figure~\ref{fig:drracket}). One exception to this is if the entire program is covered, in which case no text coloring is done.
+
+\newfigure{drracket}{Example DrRacket Code Coloring}{width=11cm}
+
+In order to determine which sections of code to color DrRacket must keep track of which expressions of have been executed. In order to do this DrRacket adds additional code before the program is run. This added code surrounds every expression with an an integer variable that represents the number of times the expression has been executed. So if the variable is 0 the expression has not been executed. Then by examaning these variables it can be determined which sections of code have not been executed. Additionally, these variables can be used to profile which sections of code are heavily used, but is not the focus of this senior project and will not be covered.
+
+\newfigure{default-flow}{DrRacket Code Coverage Program Flow}{width=7.5cm}

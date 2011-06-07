@@ -1,17 +1,19 @@
-\documentclass[draft]{article}
+\documentclass[11pt,twocolumn,final]{article}
 \usepackage{verbatim}
 \usepackage[final]{pdfpages}
+\usepackage{biblatex}
+\bibliography{mybib}
 
 \begin{document}
-
+\onecolumn
 %filename, caption, width in mm
 \newcommand{\newfigure}[3]{
 	\begin{figure}
 	\begin{center}
 	\includegraphics[#3]{figures/#1.png}
 	\caption{#2}
+	\label{fig:#1}
 	\end{center}
-	\label{#1}
 	\addtocontents{lof}{\vskip 1.0em}
 	\end{figure}
 }
@@ -55,8 +57,17 @@ Advisor: John Clements
 \addcontentsline{toc}{section}{\textnormal{List Of Figures}}
 \listoffigures
 \newpage
+%figures
+%\newfigure{covered-files-dialog}{Covered Files Dialog}{width=8.5cm}
+%\newfigure{uncovered-lines-dialog}{Uncovered Lines Dialog}{width=6cm}
+%\newfigure{no-coverage-found-dialog}{No Coverage Found Dialog}{width=10cm}
+%\newfigure{out-of-date-dialog}{Out Of Date Dialog}{width=10cm}
+%\newfigure{coverage-button}{Multi-File Coverage Button in DrRacket}{width=12cm}
+%\newfigure{default-flow}{Example DrRacket Code Coloring}{width=7.5cm}
+%\newfigure{extended-flow}{Example DrRacket Code Coloring}{width=11cm}
 
 %-------------------- Report --------------------%
+%\twocolumn
 \pagenumbering{arabic} 
 \addtocontents{toc}{\contentsline {section}{\normalfont{\textit{Section}}}{}}
 
@@ -80,12 +91,22 @@ Advisor: John Clements
 \spacesubsection{Conclusion}
 \input{sections/conclusion.tex}
 
+%-------------------- Bib --------------------%
+\onecolumn
+\addcontentsline{toc}{section}{\textnormal{References}}
+\nocite{*}
+%\bibliographystyle{plain}
+%\bibliography{mybib}
+\newpage
+\printbibliography
+
 %-------------------- Appendix --------------------%
 \newpage
-\addtocontents{toc}{\contentsline {section}{\normalfont{\textit{Appendix}}}{}}
+\addtocontents{toc}{\contentsline {section}{\normalfont{\textit{Appendixes}}}{}}
 \renewcommand{\thesubsection}{\Alph{subsection}}
 \appendix
 
+\section*{Appendixes}
 %%%% Source Code %%%%
 \spacesubsection{Source Code}
 \subsubsection*{info.rkt}
@@ -110,4 +131,5 @@ Advisor: John Clements
 % 3) generate a pdf from the .tex file
 \spacesubsection{PLaneT Documentation}
 \includepdf[pages=-]{scribble/code-coverage.pdf}
+
 \end{document}
