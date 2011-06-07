@@ -48,7 +48,7 @@ The percent in parentheses, next to each file in the @secref[@(covered-files-dia
 
 @subsection{Invalid Coverage Information}
 
-An asterisk may appear next to a file in the @secref[@(covered-files-dialog-name)]. This indicates that the file has been modified since multi-file coverage information was last collected, which may have invalidated its coverage info. To ensure that all coverage information is valid run the program you are collecting multi-file code coverage for again.
+An asterisk may appear next to a file in the @secref[@(covered-files-dialog-name)]. This indicates that the file has been modified since multi-file coverage information was last collected, which may have invalidated its coverage info. Multi-file coverage information is not applied to these files. To ensure that all coverage information is valid run the program you are collecting multi-file code coverage for again.
 
 @section[#:tag @(uncovered-lines-dialog-name)]{@(uncovered-lines-dialog-name)}
 

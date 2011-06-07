@@ -103,10 +103,10 @@ m1=Coverage Enabled
     <coordinates>
       <x>330</x>
       <y>470</y>
-      <w>110</w>
+      <w>120</w>
       <h>40</h>
     </coordinates>
-    <panel_attributes>Collect Test 
+    <panel_attributes>Collected Test 
 Coverage Info</panel_attributes>
     <additional_attributes/>
   </element>
@@ -124,16 +124,16 @@ Coverage Info</panel_attributes>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>410</x>
+      <x>420</x>
       <y>440</y>
-      <w>210</w>
+      <w>200</w>
       <h>94</h>
     </coordinates>
     <panel_attributes>lt=-
 Apply Code 
 Highlighting
 </panel_attributes>
-    <additional_attributes>190;50;30;50</additional_attributes>
+    <additional_attributes>180;50;30;50</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.custom.Systemborder</type>
@@ -487,16 +487,5 @@ Info</panel_attributes>
     </coordinates>
     <panel_attributes>lt=&lt;-</panel_attributes>
     <additional_attributes>30;140;30;30</additional_attributes>
-  </element>
-  <element>
-    <type>com.umlet.element.custom.InitialState</type>
-    <coordinates>
-      <x>860</x>
-      <y>60</y>
-      <w>20</w>
-      <h>20</h>
-    </coordinates>
-    <panel_attributes>i</panel_attributes>
-    <additional_attributes/>
   </element>
 </diagram>

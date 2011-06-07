@@ -51,7 +51,7 @@
                 (map (λ (report-item)
                        (let* ([coverage-report-file (string->path (first report-item))]
                               [located-file-tab (locate-file-tab (group:get-the-frame-group) coverage-report-file)])
-                         (when located-file-tab
+                         (when (and located-file-tab (is-file-still-valid? coverage-report-file coverage-file))
                            (send located-file-tab show-test-coverage-annotations test-coverage-info-ht #f #f #f))
                          ))
                      coverage-report-list)
@@ -80,7 +80,7 @@
                              
                              ;send coverage info to the newly opened file
                              (define located-file-tab (locate-file-tab frame-group coverage-report-file))
-                             (when located-file-tab
+                             (when (and located-file-tab (is-file-still-valid? coverage-report-file coverage-file))
                                (send located-file-tab show-test-coverage-annotations test-coverage-info-ht #f #f #f))
                              ))
                          choice-index-list))

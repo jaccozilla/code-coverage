@@ -4,11 +4,11 @@ During the research processes a few important facts where discovered: one,organi
 
 DrRacket's user interface is composed of four main classes. The highest class is the \emph{frame}. The \emph{frame} is an entire DrRacket environment as seen in figure \ref{fig:drracket}. Each frame has at least one \emph{tab}. A \emph{tab} always contains a definitions window, where the source code is visible and editable. A \emph{tab} may also contain an interactions window. Additionally, the frame group contains a list of all currently open \emph{frames}.
 
-\newfigure{gui-classes}{User Interface Classes}{width=6cm}{h!}
+\newfigure{gui-classes}{DrRacket User Interface Classes}{width=6cm}{h!}
 
 While DrRacket's default code coverage only applies code coloring to the active file, it collects information for all uncompiled files in the project. Code coverage can not be collected for compiled files because their code can not be expanded to track executed expressions (see figure~\ref{fig:default-flow}). 
 
-The code coverage and code coloring process are independent. DrRacket generates a hash table, called \emph{test-coverage-info} internally, when the program ins run. The hash table stores expressions, with their location in the source code, and whether or not they have been evaluated. 
+The code coverage and code coloring process are independent. DrRacket generates a hash table, called \emph{test-coverage-info} internally, when the program is run. The hash table stores expressions, with their location in the source code, and whether or not they have been evaluated. 
 
-The test coverage info hash table can be sent to a method in \emph{tab} (\ref{fig:gui-classes} which does code coloring for that tab based on the hash table. This hash remains available for use after code coloring has been completed. 
+The test coverage info hash table can be sent to a method in \emph{tab}, called \emph{show-test-coverage-annotations}, which does code coloring for that tab based on the hash table. This hash remains available for use after code coloring has been completed. 
 
