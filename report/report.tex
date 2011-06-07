@@ -2,13 +2,14 @@
 \usepackage{verbatim}
 \usepackage[final]{pdfpages}
 \usepackage{biblatex}
+\usepackage{float}
 \bibliography{mybib}
 
 \begin{document}
 \onecolumn
 %filename, caption, width in mm
-\newcommand{\newfigure}[3]{
-	\begin{figure}
+\newcommand{\newfigure}[4]{
+	\begin{figure}[#4]
 	\begin{center}
 	\includegraphics[#3]{figures/#1.png}
 	\caption{#2}
@@ -54,9 +55,10 @@ Advisor: John Clements
 \newpage
 
 %%%%% List of Figures %%%%%
-\addcontentsline{toc}{section}{\textnormal{List Of Figures}}
-\listoffigures
-\newpage
+%\addcontentsline{toc}{section}{\textnormal{List Of Figures}}
+%\listoffigures
+%\newpage
+
 %figures
 %\newfigure{covered-files-dialog}{Covered Files Dialog}{width=8.5cm}
 %\newfigure{uncovered-lines-dialog}{Uncovered Lines Dialog}{width=6cm}
@@ -79,6 +81,10 @@ Advisor: John Clements
 \spacesubsection{Background}
 \input{sections/background.tex}
 
+%%%%% Research %%%%%
+\spacesubsection{Research}
+\input{sections/research.tex}
+
 %%%%% Implementation %%%%%
 \spacesubsection{Implementation}
 \input{sections/implementation.tex}
@@ -93,16 +99,18 @@ Advisor: John Clements
 
 %-------------------- Bib --------------------%
 \onecolumn
-\addcontentsline{toc}{section}{\textnormal{References}}
-\nocite{*}
 %\bibliographystyle{plain}
 %\bibliography{mybib}
 \newpage
+\addcontentsline{toc}{section}{\textnormal{List Of Figures}}
+\listoffigures
+\addcontentsline{toc}{section}{\textnormal{References}}
+\nocite{*}
 \printbibliography
 
 %-------------------- Appendix --------------------%
 \newpage
-\addtocontents{toc}{\contentsline {section}{\normalfont{\textit{Appendixes}}}{}}
+\addtocontents{toc}{\contentsline {section}{\normalfont{\textit{Appendix}}}{}}
 \renewcommand{\thesubsection}{\Alph{subsection}}
 \appendix
 

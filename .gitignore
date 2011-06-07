@@ -22,3 +22,5 @@ multi-file-code-coverage
 *.xml
 report-blx.bib
 report/report.pdf
+*.bbl
+*.blg

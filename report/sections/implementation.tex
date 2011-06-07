@@ -1,1 +1,7 @@
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
+The Multi-file Code Coverage Tool is implemented as a PLaneT package. This requires no modification to any of DrRacket's source files and satisfies one of the additional goals for the project. PlaneT also brings the benefits of easy distribution, installation, updating, and feedback for the tool. The Multi-file Code Coverage Tool works in the following steps: first, searching for a test info hash table; second, coloring the code of currently open files; and third, displaying a series of dialogs that give the user test coverage information. This process can be seen in figure \ref{fig:extended-flow} on page \pageref{fig:extended-flow}.
+
+The Multi-file Code Coverage tool adds a new button to DrRacket, labeled ``Multi-file Coverage'' (Figure \ref{fig:coverage-button}). Clicking this button will color code in all open tabs using the currently in focus tab's test coverage info hash table. This means, if the user opens their test program and runs it and then clicks the button, all open tabs will be colored relative to the test file. However, if the user switches to another file, before clicking the ``Multi-file Coverage'' button, the newly switched to file's test coverage info will be applied. This behavior, while perhaps not immediately obvious, allows for code coverage information and highlighting to be switched between quickly.
+
+\newfigure{coverage-button}{Multi-File Coverage Button in DrRacket}{width=9cm}{h!}
+
+\newfigure{extended-flow}{Extended DrRacket Code Coverage Flow}{width=10cm}{h!}

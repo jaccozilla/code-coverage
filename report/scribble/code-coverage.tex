@@ -79,6 +79,7 @@
 \newcommand{\atItemizeStart}[0]{\addtolength{\stabLeft}{\labelsep}
                                 \addtolength{\stabLeft}{\labelwidth}}
 
+
 % For a single-column table in simple environments, it's better to
 %  use the `list' environment instead of `stabular'.
 \newenvironment{SingleColumn}{\begin{list}{}{\topsep=0pt\partopsep=0pt%
@@ -97,7 +98,14 @@
 \listparindent=0pt\itemindent=0pt\labelwidth=0pt\leftmargin=0pt\rightmargin=0pt%
 \itemsep=0pt}\item}{\end{list}}
 
-% The 'inset neested-flow style uses the `quote' environment
+% The 'inset nested-flow style uses the `quote' environment
+
+% Indent a 'code-inset nested flow:
+\newcommand{\SCodePreSkip}{\vskip\abovedisplayskip}
+\newcommand{\SCodePostSkip}{\vskip\belowdisplayskip}
+\newenvironment{SCodeFlow}{\SCodePreSkip\begin{list}{}{\topsep=0pt\partopsep=0pt%
+\listparindent=0pt\itemindent=0pt\labelwidth=0pt\leftmargin=2ex\rightmargin=0pt%
+\itemsep=0pt\parsep=0pt}\item}{\end{list}\SCodePostSkip}
 
 % The 'compact itemization style:
 \newenvironment{compact}{\begin{itemize}}{\end{itemize}}
@@ -109,10 +117,14 @@
 % The \refpara command corresponds to `margin-note'. The
 % refcolumn and refcontent environments also wrap the note,
 % because they simplify the CSS side.
-\newcommand{\refpara}[1]{\marginpar{\raggedright \footnotesize #1}}
+\newcommand{\refpara}[1]{\normalmarginpar\marginpar{\raggedright \footnotesize #1}}
 \newcommand{\refelem}[1]{\refpara{#1}}
 \newenvironment{refcolumn}{}{}
 \newenvironment{refcontent}{}{}
+
+\newcommand{\refparaleft}[1]{\reversemarginpar\marginpar{\raggedright \footnotesize #1}}
+\newcommand{\refelemleft}[1]{\refparaleft{#1}}
+\newenvironment{refcolumnleft}{\begin{refcolumn}}{\end{refcolumn}}
 
 % Macros used by `title' and `author':
 \newcommand{\titleAndVersionAndAuthors}[3]{\title{#1\\{\normalsize Version #2}}\author{#3}\maketitle}
@@ -156,7 +168,7 @@
 \definecolor{OutputColor}{rgb}{0.59,0.00,0.59}
 
 \newcommand{\RktPlain}[1]{\inColor{black}{#1}}
-\newcommand{\RktKw}[1]{{\SColorize{black}{\Scribtexttt{\textbf{#1}}}}}
+\newcommand{\RktKw}[1]{{\SColorize{black}{\Scribtexttt{#1}}}} % no \textbf anymore
 \newcommand{\RktStxLink}[1]{\RktKw{#1}}
 \newcommand{\RktCmt}[1]{\inColor{CommentColor}{#1}}
 \newcommand{\RktPn}[1]{\inColor{ParenColor}{#1}}
@@ -199,7 +211,7 @@
 \listparindent=0pt\itemindent=0pt\labelwidth=0pt\leftmargin=2ex\rightmargin=2ex%
 \itemsep=0pt\parsep=0pt}\item}{\end{list}}
 \newenvironment{Rfilecontent}{}{}
-\renewcommand{\preDoc}{\setcounter{page}{7}} 
+\renewcommand{\preDoc}{\setcounter{page}{13}} 
 \begin{document}
 \preDoc
 \titleAndEmptyVersionAndEmptyAuthors{Multi{-}File Code Coverage Tool}{}{}
@@ -213,35 +225,63 @@ The Multi{-}File Code Coverage Tool allows coverage information gathered from a 
 
 Multi{-}File Code Coverage is a Planet package, however it only adds a tool rather than providing functions. To install evaluate the following program:
 
-\begin{RktBlk}\begin{SingleColumn}\mbox{\hphantom{\Scribtexttt{xx}}}\RktModLink{\RktMod{\#lang}}\mbox{\hphantom{\Scribtexttt{x}}}\RktModLink{\RktSym{racket}}
+\begin{SCodeFlow}\begin{RktBlk}\begin{SingleColumn}\RktModLink{\RktMod{\#lang}}\mbox{\hphantom{\Scribtexttt{x}}}\RktModLink{\RktSym{racket}}
 
-\RktPlain{\mbox{\hphantom{\Scribtexttt{xx}}}}\RktPn{(}\RktSym{require}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{planet}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{jowalsh/code{-}coverage}\RktPn{)}\RktPn{)}\end{SingleColumn}\end{RktBlk}
+\RktPn{(}\RktSym{require}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{planet}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{jowalsh/code{-}coverage}\RktPn{)}\RktPn{)}\end{SingleColumn}\end{RktBlk}\end{SCodeFlow}
 
-... and then restart DrRacket.
+... and then restart DrRacket. The "Multi{-}File Coverage" button should now be visible as seen below.
+
+\begin{SCentered}\includegraphics[scale=1.0]{coverage-button.png}\end{SCentered}
 
 \sectionNewpage
 
 \section[Using the Tool]{Using the Tool}\label{t:x28part_x22Usingx5fthex5fToolx22x29}
 
-First ensure that you have "Syntactic Test Suite Coverage" enabled in the "Language{-}$>$Choose Language..." dialog. Then run the program you wish to collect multi{-}file coverage information for. Finally, click the "Multi{-}File Coverage" button. A new dialog will apear with the list of file covered by the program you just ran.
+First ensure that you have "Syntactic Test Suite Coverage" enabled in the "Language{-}$>$Choose Language..." dialog. You may need to click the "Show Details" button to see the expanded options. Then run the program you wish to collect multi{-}file coverage information for. Finally, click the "Multi{-}File Coverage" button. This will send the coverage information to other open files and apply code coverage highlighting to them. The \ChapRef{3}{Covered Files Dialog} will also appear containing the list of files covered by the program you just ran.
 
-You may then select one, or more, of the covered files to open and switch focus to. Additinaly, by clicking the "Open With Uncovered Lines Dialog", instead of just "Open", each selected file will spawn an additional dialog with a list of lines containing unevaluated expressions.
+You may then select one, or more, of the covered files to open and switch focus to. Additionally, by clicking the "Open With Uncovered Lines Dialog", instead of just "Open", each selected file will spawn the \ChapRef{4}{Uncovered Lines Dialog} with a list of lines containing unevaluated expressions.
+
+\sectionNewpage
+
+\section[Covered Files Dialog]{Covered Files Dialog}\label{t:x28part_x22Covered_Files_Dialogx22x29}
+
+The \ChapRef{3}{Covered Files Dialog} appears after clicking the "Multi{-}File Coverage" button. It displays a list of files covered by the currently in{-}focus program and allows the selection of a file to open and switch focus to.
+
+\begin{SCentered}\includegraphics[scale=1.0]{covered-files-dialog.png}
+\\
+Covered Files Dialog\end{SCentered}
 
 \subsection[Line Coverage Percent]{Line Coverage Percent}\label{t:x28part_x22Linex5fCoveragex5fPercentx22x29}
 
-The percent in parentheses, next to each file, is the percent of covered lines in that file. So 100\% indicates that every line in that file is covered. Blank lines and comments are also counted as covered lines.
+The percent in parentheses, next to each file in the \ChapRef{3}{Covered Files Dialog}, is the percent of covered lines in that file. So 100\% indicates that every line in that file is covered. Blank lines and comments are also counted as covered lines.
 
 \subsection[Invalid Coverage Information]{Invalid Coverage Information}\label{t:x28part_x22Invalidx5fCoveragex5fInformationx22x29}
 
-An asterisk may appear next to files in the covered files dialog. This indicates that the file has been modified since multi{-}file coverage information was last collected, which may have invalidated its coverage info. To ensure that all coverage information is valid run the program you are collecting multi{-}file code coverage for again.
+An asterisk may appear next to a file in the \ChapRef{3}{Covered Files Dialog}. This indicates that the file has been modified since multi{-}file coverage information was last collected, which may have invalidated its coverage info. To ensure that all coverage information is valid run the program you are collecting multi{-}file code coverage for again.
+
+\sectionNewpage
+
+\section[Uncovered Lines Dialog]{Uncovered Lines Dialog}\label{t:x28part_x22Uncovered_Lines_Dialogx22x29}
+
+The Uncovered Lines Dialog contains a list of line numbers, for an individual file, that are not fully covered.
+
+\begin{SCentered}\includegraphics[scale=1.0]{uncovered-lines-dialog.png}
+\\
+Uncovered Lines Dialog\end{SCentered}
+
+\sectionNewpage
+
+\section[Common Questions]{Common Questions}\label{t:x28part_x22Commonx5fQuestionsx22x29}
+
+
 
 \subsection[Saving Coverage Information]{Saving Coverage Information}\label{t:x28part_x22Savingx5fCoveragex5fInformationx22x29}
 
-Whenever the "Multi{-}File Coverage" button is clicked the multi{-}file code coverage information is saved to a file. This file is named $<$file name$>$..rktcov and saved in the "compiled" directory next to the source file.
+Whenever the "Multi{-}File Coverage" button is clicked the multi{-}file code coverage information is saved to a file. This file is named $<$file name$>$.rktcov and saved in the "compiled" directory next to the source file.
 
-\subsection[Why doesn{'}t my source file show up in the covered files dialog?]{Why doesn{'}t my source file show up in the covered files dialog?}\label{t:x28part_x22Whyx5fdoesnx5ftx5fmyx5fsourcex5ffilex5fshowx5fupx5finx5fthex5fcoveredx5ffilesx5fdialogx5fx22x29}
+\subsection[My source file doesn{'}t show up in the covered files dialog]{My source file doesn{'}t show up in the covered files dialog}\label{t:x28part_x22Myx5fsourcex5ffilex5fdoesnx5ftx5fshowx5fupx5finx5fthex5fcoveredx5ffilesx5fdialogx22x29}
 
-Only un{-}compiled files will appear in the covered files dialog. To ensure that all your covered files appear delete any "compiled" directories next to your source files. Then run your program again and click the "Multi{-}File Coverage" button.
+Only un{-}compiled files will appear in the \ChapRef{3}{Covered Files Dialog}. To ensure that all your covered files appear delete any "compiled" directories next to your source files. Then run your program again and click the "Multi{-}File Coverage" button.
 
 \postDoc
 \end{document}
