@@ -19,7 +19,7 @@
 (define categories `(devtools))
 (define primary-file '("main.rkt"))
 (define release-notes 
-  `("Updated Documentation"))
-(define version "0.4")
+  `("Fixed bug where a single line would be expanded to multiple expressions where at least one was covered, but was reported as uncovered"))
+(define version "0.5")
 (define repositories '("4.x"))
 (define scribblings '(("code-coverage.scrbl" ())))
