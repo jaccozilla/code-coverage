@@ -19,7 +19,7 @@ echo ---------- Building Planet Package ----------
 mkdir %toolname%
 xcopy *.rkt %toolname%\*
 xcopy *.scrbl %toolname%\*
-xcopy report\figures\* %toolname%\report\figures\*
+echo F | xcopy report\report.pdf %toolname%\walsh_senior-project-report.pdf
 echo ---------- Planet Create ----------
 raco planet create %toolname%\
 echo ---------- Planet fileinject ----------
