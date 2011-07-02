@@ -4,10 +4,10 @@
   <element>
     <type>com.umlet.element.custom.Systemborder</type>
     <coordinates>
-      <x>460</x>
+      <x>250</x>
       <y>40</y>
-      <w>150</w>
-      <h>60</h>
+      <w>140</w>
+      <h>40</h>
     </coordinates>
     <panel_attributes>center:Active Source File</panel_attributes>
     <additional_attributes/>
@@ -16,7 +16,7 @@
     <type>com.umlet.element.custom.Decision</type>
     <coordinates>
       <x>420</x>
-      <y>210</y>
+      <y>180</y>
       <w>40</w>
       <h>40</h>
     </coordinates>
@@ -27,7 +27,7 @@
     <type>com.umlet.element.Relation</type>
     <coordinates>
       <x>430</x>
-      <y>200</y>
+      <y>170</y>
       <w>152</w>
       <h>100</h>
     </coordinates>
@@ -41,7 +41,7 @@ m1=Coverage Disabled
     <type>com.umlet.element.Relation</type>
     <coordinates>
       <x>310</x>
-      <y>200</y>
+      <y>170</y>
       <w>138</w>
       <h>100</h>
     </coordinates>
@@ -56,7 +56,7 @@ m1=Coverage Enabled
     <type>com.umlet.element.custom.State</type>
     <coordinates>
       <x>470</x>
-      <y>300</y>
+      <y>270</y>
       <w>100</w>
       <h>40</h>
     </coordinates>
@@ -68,18 +68,19 @@ m1=Coverage Enabled
     <type>com.umlet.element.custom.State</type>
     <coordinates>
       <x>330</x>
-      <y>300</y>
+      <y>270</y>
       <w>100</w>
       <h>40</h>
     </coordinates>
-    <panel_attributes>Expand Code</panel_attributes>
+    <panel_attributes>Instrument 
+Code</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <type>com.umlet.element.custom.State</type>
     <coordinates>
       <x>330</x>
-      <y>380</y>
+      <y>350</y>
       <w>100</w>
       <h>40</h>
     </coordinates>
@@ -91,7 +92,7 @@ m1=Coverage Enabled
     <type>com.umlet.element.Relation</type>
     <coordinates>
       <x>350</x>
-      <y>310</y>
+      <y>280</y>
       <w>50</w>
       <h>90</h>
     </coordinates>
@@ -102,7 +103,7 @@ m1=Coverage Enabled
     <type>com.umlet.element.custom.SendSignal</type>
     <coordinates>
       <x>330</x>
-      <y>470</y>
+      <y>440</y>
       <w>120</w>
       <h>40</h>
     </coordinates>
@@ -114,7 +115,7 @@ Coverage Info</panel_attributes>
     <type>com.umlet.element.Relation</type>
     <coordinates>
       <x>350</x>
-      <y>390</y>
+      <y>360</y>
       <w>50</w>
       <h>100</h>
     </coordinates>
@@ -125,13 +126,13 @@ Coverage Info</panel_attributes>
     <type>com.umlet.element.Relation</type>
     <coordinates>
       <x>420</x>
-      <y>440</y>
+      <y>410</y>
       <w>200</w>
       <h>94</h>
     </coordinates>
     <panel_attributes>lt=-
 Apply Code 
-Highlighting
+Coverage Coloring
 </panel_attributes>
     <additional_attributes>180;50;30;50</additional_attributes>
   </element>
@@ -139,7 +140,7 @@ Highlighting
     <type>com.umlet.element.custom.Systemborder</type>
     <coordinates>
       <x>470</x>
-      <y>380</y>
+      <y>350</y>
       <w>100</w>
       <h>40</h>
     </coordinates>
@@ -150,7 +151,7 @@ Highlighting
     <type>com.umlet.element.Relation</type>
     <coordinates>
       <x>490</x>
-      <y>310</y>
+      <y>280</y>
       <w>50</w>
       <h>90</h>
     </coordinates>
@@ -161,7 +162,7 @@ Highlighting
     <type>com.umlet.element.Relation</type>
     <coordinates>
       <x>400</x>
-      <y>370</y>
+      <y>340</y>
       <w>90</w>
       <h>50</h>
     </coordinates>
@@ -171,20 +172,19 @@ Highlighting
   <element>
     <type>com.umlet.element.custom.Systemborder</type>
     <coordinates>
-      <x>260</x>
-      <y>100</y>
+      <x>240</x>
+      <y>180</y>
       <w>120</w>
-      <h>50</h>
+      <h>40</h>
     </coordinates>
-    <panel_attributes>center:Additional
-Source Files</panel_attributes>
+    <panel_attributes>center:Compiled Files</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <type>com.umlet.element.custom.State</type>
     <coordinates>
       <x>390</x>
-      <y>150</y>
+      <y>120</y>
       <w>100</w>
       <h>40</h>
     </coordinates>
@@ -196,7 +196,7 @@ Source Files</panel_attributes>
     <type>com.umlet.element.Relation</type>
     <coordinates>
       <x>350</x>
-      <y>250</y>
+      <y>220</y>
       <w>50</w>
       <h>70</h>
     </coordinates>
@@ -207,7 +207,7 @@ Source Files</panel_attributes>
     <type>com.umlet.element.Relation</type>
     <coordinates>
       <x>490</x>
-      <y>250</y>
+      <y>220</y>
       <w>50</w>
       <h>70</h>
     </coordinates>
@@ -218,7 +218,7 @@ Source Files</panel_attributes>
     <type>com.umlet.element.Relation</type>
     <coordinates>
       <x>410</x>
-      <y>160</y>
+      <y>130</y>
       <w>50</w>
       <h>70</h>
     </coordinates>
@@ -229,55 +229,136 @@ Source Files</panel_attributes>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>570</x>
-      <y>70</y>
-      <w>50</w>
-      <h>440</h>
+      <x>360</x>
+      <y>30</y>
+      <w>260</w>
+      <h>450</h>
     </coordinates>
     <panel_attributes>lt=&lt;-</panel_attributes>
-    <additional_attributes>30;30;30;420</additional_attributes>
+    <additional_attributes>30;30;240;30;240;430</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>320</x>
-      <y>120</y>
-      <w>90</w>
-      <h>70</h>
+      <x>300</x>
+      <y>110</y>
+      <w>80</w>
+      <h>50</h>
     </coordinates>
     <panel_attributes>lt=&lt;-</panel_attributes>
-    <additional_attributes>70;50;30;50;30;30</additional_attributes>
+    <additional_attributes>60;30;30;30</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>430</x>
-      <y>70</y>
+      <x>390</x>
+      <y>60</y>
       <w>82</w>
-      <h>100</h>
+      <h>80</h>
     </coordinates>
     <panel_attributes>lt=&lt;-
 Run
 </panel_attributes>
-    <additional_attributes>50;80;50;30</additional_attributes>
+    <additional_attributes>50;60;50;30</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.custom.Systemborder</type>
+    <coordinates>
+      <x>210</x>
+      <y>110</y>
+      <w>120</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>center:Additional
+Source Files</panel_attributes>
+    <additional_attributes/>
   </element>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>190</x>
-      <y>20</y>
-      <w>290</w>
-      <h>300</h>
+      <x>310</x>
+      <y>130</y>
+      <w>70</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-</panel_attributes>
+    <additional_attributes>50;30;30;30;30;50</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.custom.SynchBarVertical</type>
+    <coordinates>
+      <x>350</x>
+      <y>110</y>
+      <w>20</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>330</x>
+      <y>110</y>
+      <w>80</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-</panel_attributes>
+    <additional_attributes>60;30;30;30</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.custom.InitialState</type>
+    <coordinates>
+      <x>430</x>
+      <y>70</y>
+      <w>20</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>i</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>310</x>
+      <y>50</y>
+      <w>70</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-</panel_attributes>
+    <additional_attributes>50;70;30;70;30;30</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>200</x>
+      <y>130</y>
+      <w>50</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-</panel_attributes>
+    <additional_attributes>30;30;30;80</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>140</x>
+      <y>180</y>
+      <w>130</w>
+      <h>130</h>
     </coordinates>
     <panel_attributes>lt=&lt;-
-m2=Multi-file Coverage</panel_attributes>
-    <additional_attributes>30;280;30;30;270;30</additional_attributes>
+Apply Code 
+Coverage
+Coloring
+</panel_attributes>
+    <additional_attributes>70;30;70;110</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.custom.State</type>
     <coordinates>
-      <x>190</x>
-      <y>300</y>
+      <x>130</x>
+      <y>290</y>
       <w>100</w>
       <h>40</h>
     </coordinates>
@@ -287,36 +368,11 @@ Coverage Info</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
-    <type>com.umlet.element.Relation</type>
-    <coordinates>
-      <x>240</x>
-      <y>390</y>
-      <w>50</w>
-      <h>120</h>
-    </coordinates>
-    <panel_attributes>lt=&lt;-</panel_attributes>
-    <additional_attributes>30;30;30;100</additional_attributes>
-  </element>
-  <element>
-    <type>com.umlet.element.Relation</type>
-    <coordinates>
-      <x>200</x>
-      <y>180</y>
-      <w>130</w>
-      <h>140</h>
-    </coordinates>
-    <panel_attributes>lt=&lt;-
-Apply Code 
-Highlighting
-</panel_attributes>
-    <additional_attributes>70;30;70;120</additional_attributes>
-  </element>
-  <element>
     <type>com.umlet.element.custom.SynchBarHorizontal</type>
     <coordinates>
-      <x>230</x>
+      <x>180</x>
       <y>200</y>
-      <w>80</w>
+      <w>60</w>
       <h>20</h>
     </coordinates>
     <panel_attributes/>
@@ -325,30 +381,43 @@ Highlighting
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>260</x>
-      <y>120</y>
-      <w>50</w>
-      <h>110</h>
+      <x>160</x>
+      <y>30</y>
+      <w>110</w>
+      <h>200</h>
     </coordinates>
     <panel_attributes>lt=&lt;-</panel_attributes>
-    <additional_attributes>30;30;30;90</additional_attributes>
+    <additional_attributes>90;30;30;30;30;180</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>220</x>
-      <y>50</y>
-      <w>260</w>
-      <h>180</h>
+      <x>240</x>
+      <y>410</y>
+      <w>110</w>
+      <h>94</h>
+    </coordinates>
+    <panel_attributes>lt=-
+In
+Memory</panel_attributes>
+    <additional_attributes>30;50;90;50</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>240</x>
+      <y>400</y>
+      <w>50</w>
+      <h>80</h>
     </coordinates>
     <panel_attributes>lt=&lt;-</panel_attributes>
-    <additional_attributes>240;30;30;30;30;160</additional_attributes>
+    <additional_attributes>30;30;30;60</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.custom.Decision</type>
     <coordinates>
       <x>250</x>
-      <y>380</y>
+      <y>390</y>
       <w>40</w>
       <h>40</h>
     </coordinates>
@@ -358,56 +427,103 @@ Highlighting
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>240</x>
-      <y>440</y>
-      <w>110</w>
-      <h>94</h>
+      <x>200</x>
+      <y>280</y>
+      <w>90</w>
+      <h>130</h>
     </coordinates>
-    <panel_attributes>lt=-
-From
-Memory</panel_attributes>
-    <additional_attributes>30;50;90;50</additional_attributes>
+    <panel_attributes>lt=&lt;-</panel_attributes>
+    <additional_attributes>30;30;70;30;70;110</additional_attributes>
   </element>
   <element>
-    <type>com.umlet.element.custom.Systemborder</type>
+    <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>170</x>
-      <y>520</y>
-      <w>120</w>
-      <h>50</h>
+      <x>150</x>
+      <y>300</y>
+      <w>118</w>
+      <h>140</h>
     </coordinates>
-    <panel_attributes>center:Saved Test
-Coverage</panel_attributes>
-    <additional_attributes/>
+    <panel_attributes>lt=-
+Save
+Coverage
+Info</panel_attributes>
+    <additional_attributes>60;120;60;30</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
       <x>190</x>
-      <y>370</y>
+      <y>380</y>
       <w>96</w>
-      <h>170</h>
+      <h>130</h>
     </coordinates>
     <panel_attributes>lt=-
 Found</panel_attributes>
-    <additional_attributes>50;30;50;150</additional_attributes>
+    <additional_attributes>50;30;50;110</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>240</x>
-      <y>310</y>
+      <x>180</x>
+      <y>390</y>
       <w>50</w>
-      <h>90</h>
+      <h>120</h>
     </coordinates>
     <panel_attributes>lt=&lt;-</panel_attributes>
-    <additional_attributes>30;30;30;70</additional_attributes>
+    <additional_attributes>30;100;30;30</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.custom.Systemborder</type>
+    <coordinates>
+      <x>180</x>
+      <y>490</y>
+      <w>120</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>center:Saved Test
+Coverage Info</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>210</x>
+      <y>380</y>
+      <w>60</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-</panel_attributes>
+    <additional_attributes>40;30;30;30</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.custom.State</type>
     <coordinates>
       <x>70</x>
-      <y>360</y>
+      <y>460</y>
+      <w>100</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>Uncovered 
+Lines Dialog</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>50</x>
+      <y>400</y>
+      <w>124</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+Open With</panel_attributes>
+    <additional_attributes>70;60;70;30</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.custom.State</type>
+    <coordinates>
+      <x>70</x>
+      <y>390</y>
       <w>100</w>
       <h>40</h>
     </coordinates>
@@ -419,73 +535,61 @@ Files Dialog</panel_attributes>
     <type>com.umlet.element.Relation</type>
     <coordinates>
       <x>40</x>
-      <y>270</y>
-      <w>170</w>
-      <h>110</h>
+      <y>280</y>
+      <w>144</w>
+      <h>130</h>
     </coordinates>
     <panel_attributes>lt=&lt;-
 Compute Line
 Coverage %</panel_attributes>
-    <additional_attributes>80;90;80;50;150;50</additional_attributes>
+    <additional_attributes>80;110;80;30</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>50</x>
-      <y>370</y>
-      <w>124</w>
-      <h>90</h>
-    </coordinates>
-    <panel_attributes>lt=&lt;-
-Open With</panel_attributes>
-    <additional_attributes>70;70;70;30</additional_attributes>
-  </element>
-  <element>
-    <type>com.umlet.element.custom.State</type>
-    <coordinates>
-      <x>70</x>
-      <y>440</y>
-      <w>100</w>
-      <h>40</h>
-    </coordinates>
-    <panel_attributes>Uncovered 
-Lines Dialog</panel_attributes>
-    <additional_attributes/>
-  </element>
-  <element>
-    <type>com.umlet.element.Relation</type>
-    <coordinates>
-      <x>210</x>
-      <y>370</y>
+      <x>90</x>
+      <y>280</y>
       <w>60</w>
       <h>50</h>
     </coordinates>
-    <panel_attributes>lt=&lt;-</panel_attributes>
+    <panel_attributes>lt=-</panel_attributes>
     <additional_attributes>40;30;30;30</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>150</x>
-      <y>310</y>
+      <x>90</x>
+      <y>60</y>
       <w>118</w>
-      <h>128</h>
+      <h>110</h>
     </coordinates>
     <panel_attributes>lt=-
-Save
+Multi-file
 Coverage
-Info</panel_attributes>
-    <additional_attributes>60;100;60;30</additional_attributes>
+</panel_attributes>
+    <additional_attributes>60;90;60;30</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.custom.InitialState</type>
+    <coordinates>
+      <x>140</x>
+      <y>70</y>
+      <w>20</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>i</panel_attributes>
+    <additional_attributes/>
   </element>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>180</x>
-      <y>380</y>
+      <x>120</x>
+      <y>120</y>
       <w>50</w>
-      <h>160</h>
+      <h>190</h>
     </coordinates>
-    <panel_attributes>lt=&lt;-</panel_attributes>
-    <additional_attributes>30;140;30;30</additional_attributes>
+    <panel_attributes>lt=&lt;-
+</panel_attributes>
+    <additional_attributes>30;170;30;30</additional_attributes>
   </element>
 </diagram>

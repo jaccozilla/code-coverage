@@ -100,12 +100,20 @@
                  [test-coverage-info-drracket (send interactions-text get-test-coverage-info)])
             (if test-coverage-info-drracket ;if DrRacket has some test coverage info
                 (begin
-                  (when coverage-file
-                      (save-test-coverage-info test-coverage-info-drracket coverage-file))
-                  (send interactions-text set-test-coverage-info #f) ;clear out drrackets test-coverage-info-ht so we can use  
-                                                                     ;our coverage file modified time as a reference for when 
-                                                                     ;coverage was last run
-                  test-coverage-info-drracket)
+                   (send interactions-text set-test-coverage-info #f)
+                   (if coverage-file
+                       (begin
+                         (save-test-coverage-info test-coverage-info-drracket coverage-file)
+                         (load-test-coverage-info coverage-file))
+                       test-coverage-info-drracket))
+                
+;                (begin
+;                  (when coverage-file
+;                      (save-test-coverage-info test-coverage-info-drracket coverage-file))
+;                  (send interactions-text set-test-coverage-info #f) ;clear out drrackets test-coverage-info-ht so we can use  
+;                                                                     ;our coverage file modified time as a reference for when 
+;                                                                     ;coverage was last run
+;                  test-coverage-info-drracket)
                 
                 (if (and coverage-file (file-exists? coverage-file)) ;Maybe we have some saved test coverage info?
                     (if (and (not (is-file-still-valid? source-file coverage-file)) ;check if the saved info is up to date
@@ -116,9 +124,7 @@
                     (begin ; no test coverage info, tell the user and how they might collect some
                       (no-coverage-information-found-message source-file) 
                       #f)
-                    ))))
-        
-       
+                    ))))     
         
         ;Creates the load coverage button and add it to the menu bar in DrRacket
         (define load-button (new switchable-button%
@@ -157,7 +163,8 @@
                                             (max line (second file->lines-value))
                                             (if (or covered? (member line (last file->lines-value)))
                                                 (last file->lines-value)
-                                                (sort (append (last file->lines-value) (list line)) <)))
+                                                (sort (append (last file->lines-value) (list line)) <))
+                                            )
                                       ))))
         (let* ([test-coverage-info-list (sort (map (λ (item) (list (first item) 
                                                                    (second item)
@@ -207,25 +214,42 @@
     (define (file-dir-from-path path)
       (define-values (file-dir file-name must-be-dir) (split-path path))
       file-dir)
-    
+      
     ;writes the test-coiverage-info hash table to the given file so that "load-test-coverage-info"
     ;can reconstruct the hash table
     ;hasheq path -> void
     (define (save-test-coverage-info test-coverage-info coverage-file)
       (with-output-to-file coverage-file
         (lambda () (begin 
-                     (write (hash-map test-coverage-info 
+                     (write (hash-map (test-coverage-info-ht->condensed test-coverage-info) 
                                       (λ (key value)
-                                        (cons (list (serialize (syntax-source key)) 
-                                                    (syntax-position key) 
-                                                    (syntax-span key)
-                                                    (syntax-line key)) 
+                                        (cons key ;(list (serialize (syntax-source key)) 
+                                               ;     (syntax-position key) 
+                                               ;     (syntax-span key)
+                                               ;     (syntax-line key)) 
                                               value))
                                       
                                       ))))
           #:mode 'text
           #:exists 'replace
         ))
+    
+    (define (test-coverage-info-ht->condensed test-coverage-info)
+      (if test-coverage-info
+          (let* ([condensed-ht (make-hash)])
+            (hash-map test-coverage-info 
+                      (λ (key value)
+                        (let* ([entry (list (serialize (syntax-source key)) 
+                                            (syntax-position key) 
+                                            (syntax-span key)
+                                            (syntax-line key))]
+                               [entry-value (hash-ref! condensed-ht entry value)])
+                          (when (mcar value)
+                            (hash-set! condensed-ht entry value))))
+                      )
+            condensed-ht)
+          #f)
+    )
     
     ;Convert the coverage file to a test-coverage-info hash table
     ;path -> hasheq
