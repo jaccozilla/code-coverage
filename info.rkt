@@ -1,5 +1,11 @@
 #lang setup/infotab
 (define name "Multi-File Code Coverage")
+(define collection "code-coverage")
+(define deps '("base"
+               "gui-lib"
+               "drracket"
+               "drracket-plugin-lib"))
+(define build-deps '("scribble-lib" "racket-doc"))
 
 (define drracket-tools (list (list "tool.rkt")))
 (define drracket-name name)
